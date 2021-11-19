@@ -3,7 +3,7 @@
 //
 
 #include "matrix_double.h"
-MatrixD::MatrixD(size_t width, size_t height) : width_(width), height_(height) {
+MatrixD::MatrixD(size_t height, size_t width) : width_(width), height_(height) {
   data_.reserve(width * height);
   for (int i = 0; i < height_; i++)
     for (int j = 0; j < width_; j++)
@@ -24,16 +24,18 @@ void MatrixD::Fill(double val) {
 }
 void MatrixD::Clear() { Fill(0); }
 MatrixD::MatrixD(const std::vector<std::vector<double>> &data) {
-  width_ = data.begin()->size();
+  height_ = data.begin()->size();
+
   for (auto &i : data)
-    if (i.size() != width_)
+    if (i.size() != height_)
       throw "passed data matrix must have correctly defined size";
-  height_ = data.size();
+  width_ = data.size();
+
   data_.reserve(width_ * height_);
 
   for (int i = 0; i < height_; i++)
     for (int j = 0; j < width_; j++)
-      data_.push_back(data[i][j]);
+      data_.push_back(data[j][i]);
 }
 MatrixD MatrixD::operator+(const MatrixD &other) const {
   MatrixD addition(*this);
@@ -95,7 +97,7 @@ void MatrixD::operator-=(const double &other) {
       Get(i, j) -= other;
 }
 MatrixD MatrixD::operator*(const MatrixD &other) const {
-  MatrixD multiplication(height_, other.width_);
+  MatrixD multiplication(other.width_, height_);
 
   for (int i = 0; i < multiplication.height_; i++)
     for (int j = 0; j < multiplication.width_; j++) {
@@ -108,7 +110,7 @@ MatrixD MatrixD::operator*(const MatrixD &other) const {
 
 void MatrixD::operator*=(const MatrixD &other) {
 
-  MatrixD multiplication(height_, other.width_);
+  MatrixD multiplication(other.width_, height_);
 
   for (int i = 0; i < multiplication.height_; i++)
     for (int j = 0; j < multiplication.width_; j++) {
@@ -154,3 +156,4 @@ bool MatrixD::operator==(const MatrixD &rhs) const {
 bool MatrixD::operator!=(const MatrixD &rhs) const { return !(rhs == *this); }
 size_t MatrixD::GetWidth() const { return width_; }
 size_t MatrixD::GetHeight() const { return height_; }
+const std::vector<double> &MatrixD::GetData() const { return data_; }

@@ -11,7 +11,7 @@
 
 class MatrixD {
 public:
-  MatrixD(size_t width, size_t height);
+  MatrixD(size_t height, size_t width);
   MatrixD(const std::vector<std::vector<double>> &data);
   MatrixD(const MatrixD &) = default;
   MatrixD &operator=(const MatrixD &) = default;
@@ -28,6 +28,7 @@ public:
   /// \return targeted value
   double Get(int i, int j) const { return data_[ToInt(i, j)]; };
 
+  const std::vector<double> &GetData() const;
   /// access specific value by reference
   /// \param i the 'height' part
   /// \param j the 'width' part
@@ -37,6 +38,8 @@ public:
   /// overrides every value in matrix and changes it to given val
   /// \param val the new state of every val in matrix
   void Fill(double val);
+
+
 
   /// overrides every value in matrix and changes it to 0
   void Clear();
@@ -123,6 +126,21 @@ static std::string ToString(const MatrixD &other) {
     if (i < other.GetHeight() - 1)
       output += ",\n[";
   }
+  output += ']';
+
+  return output;
+}
+
+static std::string ToString(const std::vector<double> &other) {
+  std::string output = "[";
+
+  for (int i = 0; i < other.size(); i++) {
+    if (i < other.size() - 1)
+      output += std::to_string(other[i]) + ", ";
+    else
+      output += std::to_string(other[i]) + "]";
+  }
+
   output += ']';
 
   return output;
