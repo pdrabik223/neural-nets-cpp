@@ -94,6 +94,31 @@ void MatrixD::operator-=(const double &other) {
     for (int j = 0; j < width_; j++)
       Get(i, j) -= other;
 }
+MatrixD MatrixD::operator*(const MatrixD &other) const {
+  MatrixD multiplication(height_, other.width_);
+
+  for (int i = 0; i < multiplication.height_; i++)
+    for (int j = 0; j < multiplication.width_; j++) {
+      for (int k = 0; k < width_; k++)
+        multiplication.Get(i, j) += Get(i, k) * other.Get(k, j);
+    }
+
+  return multiplication;
+}
+
+void MatrixD::operator*=(const MatrixD &other) {
+
+  MatrixD multiplication(height_, other.width_);
+
+  for (int i = 0; i < multiplication.height_; i++)
+    for (int j = 0; j < multiplication.width_; j++) {
+      for (int k = 0; k < width_; k++)
+        multiplication.Get(i, j) += Get(i, k) * other.Get(k, j);
+    }
+
+  *this = multiplication;
+}
+
 MatrixD MatrixD::operator*(const double &other) const {
   MatrixD multiplication(*this);
 

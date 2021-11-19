@@ -6,8 +6,7 @@
 int main() {
 
   MatrixD first({{1, 2, 3}, {4, 5, 6}, {7, 8, 9}});
-  first.Fill(6);
-  std::cout << ToString(first);
+  MatrixD second({{4, 5, 6}, {7, 8, 9}, {1, 2, 3}});
 
   return 0;
 }

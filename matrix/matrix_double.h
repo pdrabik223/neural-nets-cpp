@@ -77,12 +77,6 @@ public:
   /// matrix multiplication and assigment
   void operator*=(const double &other);
 
-  /// matrix division
-  MatrixD operator/(const MatrixD &other) const;
-
-  /// matrix division and assigment
-  void operator/=(const MatrixD &other);
-
   /// matrix to scalar division
   MatrixD operator/(const double &other) const;
 
@@ -127,7 +121,7 @@ static std::string ToString(const MatrixD &other) {
         output += std::to_string(other.Get(i, j)) + "]";
     }
     if (i < other.GetHeight() - 1)
-      output += "\n[";
+      output += ",\n[";
   }
   output += ']';
 
