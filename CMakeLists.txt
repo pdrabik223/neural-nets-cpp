@@ -8,6 +8,5 @@ set(matrix_dir
         matrix/matrix_double.cpp
         matrix/matrix_double.h)
 
-
 add_executable(neural_nets_cpp  main.cpp
         ${matrix_dir})
