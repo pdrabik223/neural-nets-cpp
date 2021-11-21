@@ -9,6 +9,16 @@ MatrixD::MatrixD(size_t height, size_t width) : width_(width), height_(height) {
     for (int j = 0; j < width_; j++)
       data_.push_back(0.0);
 }
+MatrixD::MatrixD(const std::vector<double> &data)
+    : width_(data.size()), height_(1) {
+
+  data_.reserve(width_ * height_);
+  int k = 0;
+  for (int i = 0; i < height_; i++)
+    for (int j = 0; j < width_; j++)
+      data_.push_back(data[k++]);
+}
+
 size_t MatrixD::ToInt(int i, int j) const {
   assert(i >= 0 && j >= 0);
   assert(i < height_ && j < width_);
@@ -24,18 +34,18 @@ void MatrixD::Fill(double val) {
 }
 void MatrixD::Clear() { Fill(0); }
 MatrixD::MatrixD(const std::vector<std::vector<double>> &data) {
-  height_ = data.begin()->size();
+  width_ = data.begin()->size();
 
   for (auto &i : data)
-    if (i.size() != height_)
+    if (i.size() != width_)
       throw "passed data matrix must have correctly defined size";
-  width_ = data.size();
+  height_ = data.size();
 
   data_.reserve(width_ * height_);
 
   for (int i = 0; i < height_; i++)
     for (int j = 0; j < width_; j++)
-      data_.push_back(data[j][i]);
+      data_.push_back(data[i][j]);
 }
 MatrixD MatrixD::operator+(const MatrixD &other) const {
   MatrixD addition(*this);
@@ -97,6 +107,10 @@ void MatrixD::operator-=(const double &other) {
       Get(i, j) -= other;
 }
 MatrixD MatrixD::operator*(const MatrixD &other) const {
+
+  if (width_ != other.height_)
+    throw "incorrect matrix sizes";
+
   MatrixD multiplication(other.width_, height_);
 
   for (int i = 0; i < multiplication.height_; i++)
@@ -109,7 +123,8 @@ MatrixD MatrixD::operator*(const MatrixD &other) const {
 }
 
 void MatrixD::operator*=(const MatrixD &other) {
-
+  if (width_ != other.height_)
+    throw "incorrect matrix sizes";
   MatrixD multiplication(other.width_, height_);
 
   for (int i = 0; i < multiplication.height_; i++)

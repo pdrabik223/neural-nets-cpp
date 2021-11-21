@@ -5,6 +5,10 @@ set(CMAKE_CXX_STANDARD 14)
 
 include_directories(matrix)
 include_directories(neural_net)
+add_subdirectory(googletest)
+add_subdirectory(google_test)
+enable_testing()
+
 set(matrix_dir
         matrix/matrix_double.cpp
         matrix/matrix_double.h

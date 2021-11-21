@@ -12,7 +12,9 @@
 class MatrixD {
 public:
   MatrixD(size_t height, size_t width);
-  MatrixD(const std::vector<std::vector<double>> &data);
+  explicit MatrixD(const std::vector<std::vector<double>> &data);
+  explicit MatrixD(const std::vector<double> &data);
+
   MatrixD(const MatrixD &) = default;
   MatrixD &operator=(const MatrixD &) = default;
 
@@ -38,8 +40,6 @@ public:
   /// overrides every value in matrix and changes it to given val
   /// \param val the new state of every val in matrix
   void Fill(double val);
-
-
 
   /// overrides every value in matrix and changes it to 0
   void Clear();
@@ -82,6 +82,10 @@ public:
 
   /// matrix to scalar division
   MatrixD operator/(const double &other) const;
+
+//  MatrixD operator*(const std::vector<double> &other) const;
+//
+//  MatrixD operator+(const std::vector<double> &other) const;
 
   /// matrix division and assigment
   void operator/=(const double &other);

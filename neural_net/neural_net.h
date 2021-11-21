@@ -12,9 +12,17 @@ public:
             const std::vector<size_t> &hidden_layer_sizes,
             size_t output_layer_size);
 
+  /// sets all weights and biases to random value ranging from 0 to 1
   void FillRandom() {
     for (auto &hidden_layer : hidden_layers_) {
       hidden_layer.FillRandom();
+    }
+  }
+  /// sets all weights and biases to specified value
+  /// \param value witch all biases and weights will be set to
+  void Fill(double value) {
+    for (auto &hidden_layer : hidden_layers_) {
+      hidden_layer.Fill(value);
     }
   }
 

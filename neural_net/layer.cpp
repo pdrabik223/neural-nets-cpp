@@ -16,3 +16,11 @@ void Layer::FillRandom() {
     for (int j = 0; j < weights_.GetWidth(); j++)
       weights_.Get(i, j) = rand() / RAND_MAX;
 }
+void Layer::Fill(double value) {
+  for (auto &b : biases_)
+    b = value;
+
+  for (int i = 0; i < weights_.GetHeight(); i++)
+    for (int j = 0; j < weights_.GetWidth(); j++)
+      weights_.Get(i, j) = value;
+}
