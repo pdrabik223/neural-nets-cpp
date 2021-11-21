@@ -125,6 +125,7 @@ MatrixD MatrixD::operator*(const MatrixD &other) const {
 void MatrixD::operator*=(const MatrixD &other) {
   if (width_ != other.height_)
     throw "incorrect matrix sizes";
+
   MatrixD multiplication(other.width_, height_);
 
   for (int i = 0; i < multiplication.height_; i++)

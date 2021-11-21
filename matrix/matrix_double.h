@@ -83,9 +83,14 @@ public:
   /// matrix to scalar division
   MatrixD operator/(const double &other) const;
 
-//  MatrixD operator*(const std::vector<double> &other) const;
-//
-//  MatrixD operator+(const std::vector<double> &other) const;
+  //  MatrixD operator*(const std::vector<double> &other) const;
+  //
+  //  MatrixD operator+(const std::vector<double> &other) const;
+
+  void Reshape() {
+    auto matrix_copy(*this);
+
+  }
 
   /// matrix division and assigment
   void operator/=(const double &other);
@@ -122,7 +127,8 @@ static std::string ToString(const MatrixD &other) {
 
   for (int i = 0; i < other.GetHeight(); i++) {
     for (int j = 0; j < other.GetWidth(); j++) {
-      if (j < other.GetHeight() - 1)
+
+      if (j < other.GetWidth() - 1)
         output += std::to_string(other.Get(i, j)) + ", ";
       else
         output += std::to_string(other.Get(i, j)) + "]";
