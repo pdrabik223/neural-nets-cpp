@@ -10,6 +10,8 @@ include_directories(${CMAKE_SOURCE_DIR}/neural_net)
 set(matrix_dir
         ${CMAKE_SOURCE_DIR}/matrix/matrix_double.cpp
         ${CMAKE_SOURCE_DIR}/matrix/matrix_double.h
+        ${CMAKE_SOURCE_DIR}/matrix/matrix.h
+        ${CMAKE_SOURCE_DIR}/matrix/matrix.cpp
         )
 set(neural_net_dir
         ${CMAKE_SOURCE_DIR}/neural_net/neural_net.h
@@ -17,7 +19,7 @@ set(neural_net_dir
         ${CMAKE_SOURCE_DIR}/neural_net/layer.h
         ${CMAKE_SOURCE_DIR}/neural_net/layer.cpp
         )
-add_executable(GTests test1.cpp
+add_executable(GTests test2.cpp
         ${matrix_dir}
         ${neural_net_dir})
 

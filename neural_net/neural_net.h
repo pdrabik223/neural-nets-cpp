@@ -19,11 +19,36 @@ public:
     }
   }
   /// sets all weights and biases to specified value
-  /// \param value witch all biases and weights will be set to
-  void Fill(double value) {
+  /// \param value witch all  weights will be set to
+  void FillWeights(double value) {
     for (auto &hidden_layer : hidden_layers_) {
-      hidden_layer.Fill(value);
+      hidden_layer.FillWeights(value);
     }
+  }
+
+  /// sets all biases to specified value
+  /// \param value to witch biases will be set to
+  void FillBiases(double value) {
+    for (auto &hidden_layer : hidden_layers_) {
+      hidden_layer.FillBiases(value);
+    }
+  };
+
+  void Show() {
+
+    std::cout << "input layer ";
+    hidden_layers_[0].Show();
+    std::cout << std::endl;
+
+    for (int i = 1; i < hidden_layers_.size() - 1; i++) {
+      std::cout << "hidden layer " << i;
+      hidden_layers_[i].Show();
+      std::cout << std::endl;
+    }
+
+    std::cout << "output layer ";
+    hidden_layers_[hidden_layers_.size() - 1].Show();
+    std::cout << std::endl;
   }
 
   std::vector<double> FeedForward(const std::vector<double> &input) {

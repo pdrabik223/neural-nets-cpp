@@ -4,14 +4,16 @@
 #include "matrix_double.h"
 #include "neural_net.h"
 #include <iostream>
+#include <matrix.h>
 int main() {
 
-  //  NeuralNet test(2, {3, 3}, 2);
-  //  test.Fill(1);
+  NeuralNet test(2, {2, 2}, 2);
+  test.FillWeights(1);
+  test.FillBiases(0);
+  test.Show();
+  std::cout << ToString(test.FeedForward({1, 1}));
+
   //
-  MatrixD test({1, 2, 3, 4, 5, 6});
-  MatrixD test2({{std::vector<double>(1)}, {2}, {3}, {4}, {5}, {6}});
-  std::cout << ToString(test * test2);
 
   return 0;
 }
