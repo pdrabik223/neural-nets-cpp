@@ -27,11 +27,34 @@ public:
 
   /// sets all biases to specified value
   /// \param value to witch biases will be set to
-  void FillBiases(double value);;
+  void FillBiases(double value);
+  ;
 
   void Show();
 
   std::vector<double> FeedForward(const std::vector<double> &input);
+
+  static double CostFunction(const std::vector<double> &n_n_output,
+                             const std::vector<double> &expected_output) {
+    if (n_n_output.size() != expected_output.size())
+      throw "incorrect vector dimensions";
+
+    double error = 0.0;
+    for (int i = 0; i < n_n_output.size(); i++)
+      error += pow(n_n_output[i] - expected_output[i], 2);
+
+    return error;
+  }
+  static std::vector<double>
+  NNError(const std::vector<double> &n_n_output,
+          const std::vector<double> &expected_output) {
+    std::vector<double> error;
+    error.reserve(n_n_output.size());
+    for (int i = 0; i < n_n_output.size(); i++)
+      error.push_back(n_n_output[i] - expected_output[i]);
+
+    return error;
+  }
 
 private:
   static std::vector<double> &
