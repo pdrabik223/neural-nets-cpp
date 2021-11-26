@@ -298,4 +298,14 @@ static std::vector<T> Add(const std::vector<T> &vector_a,
   return sum;
 }
 
+template <class T>
+static std::vector<T> HadamardProduct(const std::vector<T> &vector_a,
+                          const std::vector<T> &vector_b){
+  std::vector<T> hadamard_product(vector_a);
+  for (auto i = 0; i < hadamard_product.size(); i++)
+    hadamard_product[i] *= vector_b[i];
+
+  return hadamard_product;
+}
+
 #endif // NEURAL_NETS_CPP_MATRIX_MATRIX_H_

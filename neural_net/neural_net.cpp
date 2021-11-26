@@ -24,12 +24,15 @@ NeuralNet::NeuralNet(size_t input_layer_size, size_t output_layer_size)
       output_layer_size(output_layer_size) {
 
   hidden_layers_.emplace_back(input_layer_size, output_layer_size);
-  functions.push_back(NormalizingFunction::RELU);
+  functions.push_back(NormalizingFunction::SIGMOID);
 }
 std::string NeuralNet::ToString(NeuralNet::NormalizingFunction func) {
   switch (func) {
   case NeuralNet::NormalizingFunction::RELU:
     return "Relu";
+  case NormalizingFunction::SIGMOID:
+    return "Sigmoid";
+
   }
 }
 std::vector<double> &NeuralNet::ApplyNormalizingFunction(
@@ -40,6 +43,10 @@ std::vector<double> &NeuralNet::ApplyNormalizingFunction(
   case NormalizingFunction::RELU:
     for (auto &target : target_vector)
       target = Relu(target);
+    break;
+  case NormalizingFunction::SIGMOID:
+    for (auto &target : target_vector)
+      target = Sigmoid(target);
     break;
   }
   return target_vector;
@@ -83,4 +90,10 @@ void NeuralNet::FillRandom() {
   for (auto &hidden_layer : hidden_layers_) {
     hidden_layer.FillRandom();
   }
+}
+double NeuralNet::Relu(double val) {
+  if (val < 0)
+    return 0;
+  else
+    return val;
 }

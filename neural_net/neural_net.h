@@ -7,10 +7,12 @@
 
 #include "layer.h"
 #include <string>
+
+#define E 2.7'182'818'284
 class NeuralNet {
 
 public:
-  enum class NormalizingFunction { RELU };
+  enum class NormalizingFunction { RELU, SIGMOID };
   /// \param hidden_layer_sizes array of  uint numbers that represent
   /// consecutive layer sizes
   NeuralNet(size_t input_layer_size,
@@ -28,7 +30,6 @@ public:
   /// sets all biases to specified value
   /// \param value to witch biases will be set to
   void FillBiases(double value);
-  ;
 
   void Show();
 
@@ -63,11 +64,10 @@ private:
 
   static std::string ToString(NeuralNet::NormalizingFunction func);
 
-  static double Relu(double val) {
-    if (val < 0)
-      return 0;
-    else
-      return val;
+  static double Relu(double val);
+  static double Sigmoid(double val) { return 1.0 - 1.0 / (1.0 + exp(val)); }
+  static double SigmoidDerivative(double val) {
+    return Sigmoid(val) * (1 - Sigmoid(val));
   }
 
 protected:
@@ -80,6 +80,9 @@ static std::string ToString(NeuralNet::NormalizingFunction func) {
   switch (func) {
   case NeuralNet::NormalizingFunction::RELU:
     return "Relu";
+  case NeuralNet::NormalizingFunction::SIGMOID:
+    return "Sigmoid";
+
   }
 }
 #endif // NEURAL_NETS_CPP_NEURTAL_NET_NEURALNET_H_
