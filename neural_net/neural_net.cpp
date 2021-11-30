@@ -98,8 +98,9 @@ double NeuralNet::PropagateBackwards(const std::vector<double> &output_error,
   for (auto i : output_error)
     cumulative_error += i;
 
-  std::vector<double> output_layer_error = HadamardProduct(
-      ApplySigmoidDerivative(output_error), network_layers_.back().GetNodes());
+  std::vector<double> output_layer_error =
+      HadamardProduct(ApplySigmoidDerivative(output_error),
+                      network_layers_[network_layers_.size() - 1].GetNodes());
 
   const std::vector<double> &output_layer_bias_error = output_layer_error;
 
@@ -119,11 +120,11 @@ double NeuralNet::PropagateBackwards(const std::vector<double> &output_error,
       MatrixMul(input_values, hidden_layer_error);
 
   // -------- apply changes -------
-  network_layers_.back().GetWeights().Sub(
+  network_layers_[network_layers_.size() - 1].GetWeights().Sub(
       Transpose(matrix::Mul(output_layer_weight_gradient, learning_rate)));
 
-  network_layers_.back().GetBiases() =
-      Sub(network_layers_.back().GetBiases(),
+  network_layers_[network_layers_.size() - 1].GetBiases() =
+      Sub(network_layers_[network_layers_.size() - 1].GetBiases(),
           Mul(output_layer_bias_error, learning_rate));
 
   network_layers_[network_layers_.size() - 2].GetWeights().Sub(
