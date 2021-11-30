@@ -56,6 +56,7 @@ public:
           const std::vector<double> &expected_output) {
     std::vector<double> error;
     error.reserve(n_n_output.size());
+
     for (int i = 0; i < n_n_output.size(); i++)
       error.push_back(n_n_output[i] - expected_output[i]);
 
@@ -64,11 +65,6 @@ public:
 
 private:
   std::vector<double> ApplySigmoidDerivative(const std::vector<double>& vector_a);
-  static std::vector<double> &
-  ApplyNormalizingFunction(std::vector<double> &target_vector,
-                           NormalizingFunction function_type);
-
-  static std::string ToString(NormalizingFunction func);
 
 
 

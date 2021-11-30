@@ -251,7 +251,7 @@ static Matrix<T> Mul(const Matrix<T> &matrix_a, const Matrix<T> &matrix_b) {
 template <class T>
 static Matrix<T> Mul(const Matrix<T> &matrix_a, const T &value) {
 
-  Matrix<T> multiplication(matrix_a.GetHeight(), matrix_a.GetWidth());
+  Matrix<T> multiplication(matrix_a);
 
   for (int i = 0; i < multiplication.GetHeight(); i++)
     for (int j = 0; j < multiplication.GetWidth(); j++) {

@@ -14,10 +14,10 @@ size_t Layer::GetPreviousLayerHeight() const { return previous_layer_height; }
 
 void Layer::FillRandom() {
   for (auto &b : biases_)
-    b = rand() / RAND_MAX;
+    b = (double)rand() / (double)RAND_MAX;
   for (int i = 0; i < weights_.GetHeight(); i++)
     for (int j = 0; j < weights_.GetWidth(); j++)
-      weights_.Get(i, j) = rand() / RAND_MAX;
+      weights_.Get(i, j) = (double)rand() / (double)RAND_MAX;
 }
 void Layer::FillWeights(double value) {
 

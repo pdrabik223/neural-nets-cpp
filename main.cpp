@@ -14,6 +14,9 @@ int main() {
   test.FillRandom();
 
   for (int i = 0; i < 100; i++) {
+//    test.Show();
+//    std::cout<<"\n";
+//    system("pause");
 
     std::vector<double> input;
     input.push_back((double)rand() / (double)RAND_MAX);
@@ -22,7 +25,9 @@ int main() {
     target.push_back(LinearFunction(input[0]));
 
     auto nn_error = NeuralNet::NNError(test.FeedForward(input), target);
-    test.PropagateBackwards(nn_error, 0.01);
+    test.PropagateBackwards(nn_error, 0.1);
+
+
     std::cout << "i: " << i << "  error: " << nn_error[0] << std::endl;
   }
 
