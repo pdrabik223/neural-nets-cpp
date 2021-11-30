@@ -10,7 +10,7 @@ double LinearFunction(double x) { return 5 * x + 5; }
 
 int main() {
 
-  NeuralNet test(1, {3}, 1);
+  NeuralNet test(1, {4}, 1);
   test.FillRandom();
 
   for (int i = 0; i < 100; i++) {
@@ -21,9 +21,9 @@ int main() {
     std::vector<double> target;
     target.push_back(LinearFunction(input[0]));
 
-    auto nnError = test.NNError(test.FeedForward(input), target);
-    test.PropagateBackwards(nnError, 0.1);
-    std::cout << "i: " << i << "  error: " << nnError[0] << std::endl;
+    auto nn_error = NeuralNet::NNError(test.FeedForward(input), target);
+    test.PropagateBackwards(nn_error, 0.01);
+    std::cout << "i: " << i << "  error: " << nn_error[0] << std::endl;
   }
 
   //

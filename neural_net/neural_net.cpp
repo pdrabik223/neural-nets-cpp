@@ -119,21 +119,19 @@ double NeuralNet::PropagateBackwards(const std::vector<double> &output_error,
       MatrixMul(input_values, hidden_layer_error);
 
   // -------- apply changes -------
-  network_layers_.back().SetWeights(matrix::Sub(
-      network_layers_.back().GetWeights(),
-      Transpose(matrix::Mul(output_layer_weight_gradient, learning_rate))));
+  network_layers_.back().GetWeights().Sub(
+      Transpose(matrix::Mul(output_layer_weight_gradient, learning_rate)));
 
-  network_layers_.back().SetBiases(
+  network_layers_.back().GetBiases() =
       Sub(network_layers_.back().GetBiases(),
-          Mul(output_layer_bias_error, learning_rate)));
+          Mul(output_layer_bias_error, learning_rate));
 
-  network_layers_[network_layers_.size() - 2].SetWeights(
-      matrix::Sub(network_layers_[network_layers_.size() - 2].GetWeights(),
-                  matrix::Mul(hidden_layer_weight_gradient, learning_rate)));
+  network_layers_[network_layers_.size() - 2].GetWeights().Sub(
+      matrix::Mul(hidden_layer_weight_gradient, learning_rate));
 
-  network_layers_[network_layers_.size() - 2].SetBiases(
+  network_layers_[network_layers_.size() - 2].GetBiases() =
       Sub(network_layers_[network_layers_.size() - 2].GetBiases(),
-          Mul(hidden_layer_bias_error, learning_rate)));
+          Mul(hidden_layer_bias_error, learning_rate));
 
   return cumulative_error;
 }

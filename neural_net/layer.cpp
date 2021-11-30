@@ -3,9 +3,11 @@
 //
 
 #include "layer.h"
-Layer::Layer(size_t previous_layer_height, size_t layer_height,NormalizingFunction activation_function)
+Layer::Layer(size_t previous_layer_height, size_t layer_height,
+             NormalizingFunction activation_function)
     : layer_height(layer_height), previous_layer_height(previous_layer_height),
-      weights_(previous_layer_height, layer_height), biases_(layer_height),activation_function_(activation_function) {}
+      weights_(previous_layer_height, layer_height), biases_(layer_height),
+      activation_function_(activation_function) {}
 
 size_t Layer::GetLayerHeight() const { return layer_height; }
 size_t Layer::GetPreviousLayerHeight() const { return previous_layer_height; }
@@ -28,12 +30,12 @@ void Layer::FillBiases(double value) {
     val = value;
 }
 const std::vector<double> &Layer::GetNodes() const { return nodes_; }
-const matrix::Matrix<double> &Layer::GetWeights() const { return weights_; }
+matrix::Matrix<double> &Layer::GetWeights()  { return weights_; }
 void Layer::SetWeights(const matrix::Matrix<double> &weights) {
   weights_ = weights;
 }
 void Layer::SetBiases(const std::vector<double> &biases) { biases_ = biases; }
-const std::vector<double> &Layer::GetBiases() const { return biases_; }
+std::vector<double> &Layer::GetBiases() { return biases_; }
 
 std::vector<double> &
 Layer::ApplyNormalizingFunction(std::vector<double> &target_vector,

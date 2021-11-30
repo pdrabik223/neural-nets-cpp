@@ -43,9 +43,9 @@ public:
   };
 
   size_t GetLayerHeight() const;
-  const std::vector<double> &GetBiases() const;
+  std::vector<double> &GetBiases() ;
   size_t GetPreviousLayerHeight() const;
-  const matrix::Matrix<double> &GetWeights() const;
+  matrix::Matrix<double> &GetWeights() ;
 
   void SetWeights(const matrix::Matrix<double> &weights);
   void SetBiases(const std::vector<double> &biases);
