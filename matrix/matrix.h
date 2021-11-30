@@ -157,8 +157,10 @@ static Matrix<T> Add(const Matrix<T> &matrix_a, const Matrix<T> &matrix_b) {
 }
 template <class T>
 static Matrix<T> Sub(const Matrix<T> &matrix_a, const Matrix<T> &matrix_b) {
+
   if (matrix_a.GetWidth() != matrix_b.GetWidth())
     throw "incorrect matrix shape";
+
   if (matrix_a.GetHeight() != matrix_b.GetHeight())
     throw "incorrect matrix shape";
 
@@ -209,20 +211,27 @@ template <class T> void Matrix<T>::Mul(const Matrix<T> &other) {
   *this = multiplication;
 }
 
+///            1,3
+/// 4,5,6    x 2,4  = 50,74
+///            6,7
 template <class T>
-static std::vector<T> Mul(const Matrix<T>& matrix_a,
-                          const std::vector<T> &other) {
-  if (matrix_a.GetWidth() != other.size())
+static std::vector<T> Mul(const std::vector<T> &other,
+                          const Matrix<T> &matrix_a) {
+
+  // The number of columns in the first matrix should be equal to the number of
+  // rows in the second.
+  if (matrix_a.GetHeight() != other.size())
     throw "incorrect matrix sizes";
 
   std::vector<T> multiplication;
-  for (int i = 0; i < matrix_a.GetHeight(); i++)
+  for (int i = 0; i < matrix_a.GetWidth(); i++)
     multiplication.push_back(T(0));
 
-  for (int i = 0; i < matrix_a.GetHeight(); i++)
-    for (int j = 0; j < matrix_a.GetWidth(); j++) {
-      multiplication[j] += matrix_a.Get(i, j) * other[j];
+  for (int j = 0; j < matrix_a.GetWidth(); j++)
+    for (int i = 0; i < matrix_a.GetHeight(); i++) {
+      multiplication[j] += matrix_a.Get(i, j) * other[i];
     }
+
   return multiplication;
 }
 template <class T>
@@ -280,10 +289,8 @@ template <class T> void Matrix<T>::Transpose() {
     for (int j = 0; j < width_; j++) {
       Get(i, j) = copy.Get(j, i);
     }
-
 }
 
 } // namespace matrix
-
 
 #endif // NEURAL_NETS_CPP_MATRIX_MATRIX_H_

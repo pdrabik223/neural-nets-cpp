@@ -18,7 +18,7 @@ public:
   /// feed forward values
   std::vector<double> FeedForward(const std::vector<double> &input) {
 
-    nodes_ = Add(matrix::Mul(weights_, input), biases_);
+    nodes_ = Add(matrix::Mul(input, weights_), biases_);
     nodes_ = ApplyNormalizingFunction(nodes_, activation_function_);
     return nodes_;
   };

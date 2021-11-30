@@ -97,27 +97,27 @@ TEST(Matrix, Vector_Multiplication_2x2_2) {
 
   matrix::Matrix<int> test({{1, 2}, {3, 4}});
   std::vector<int> test2({1, 2});
-  std::vector<int> solution({5, 11});
-  EXPECT_TRUE(solution == matrix::Mul(test, test2));
+  std::vector<int> solution({7, 10});
+  EXPECT_TRUE(solution == matrix::Mul(test2, test));
 }
 
-TEST(Matrix, Vector_Multiplication_2x3_3)  {
+TEST(Matrix, Vector_Multiplication_2x3_3) {
 
-  matrix::Matrix<int> test({{1, 2, 3}, {4, 5, 6}});
+  matrix::Matrix<int> test({{1, 2}, {3, 4},{ 5, 6}});
   std::vector<int> test2({1, 2, 3});
-  std::vector<int> solution({14, 32});
+  std::vector<int> solution({22, 28});
 
-  EXPECT_TRUE(solution == matrix::Mul(test, test2));
+  EXPECT_TRUE(solution == matrix::Mul(test2, test));
 }
 
 TEST(Matrix, Vector_Multiplication_3x2_2) {
 
-  matrix::Matrix<int> test({{1, 2}, {3, 4}, {5, 6}});
   std::vector<int> test2({1, 2});
+  matrix::Matrix<int> test({{1, 2}, {3, 4}, {5, 6}});
 
   std::vector<int> solution({{5, 11, 17}});
 
-  EXPECT_TRUE(solution == matrix::Mul(test, test2));
+  EXPECT_ANY_THROW( matrix::Mul(test2, test));
 }
 
 TEST(Vector, Vector_sum) {
@@ -129,3 +129,11 @@ TEST(Vector, Vector_sum) {
   EXPECT_TRUE(test3 == Add(test, test2));
 }
 
+TEST(MatrixMul, 1) {
+  std::vector<double> test = {1, 2, 3};
+  std::vector<double> test_2 = {4, 5, 6};
+  matrix::Matrix<double> test3(
+      {{4, 5, 6.0}, {8, 10, 12}, {12.0, 15.0, 18.0}});
+
+  EXPECT_TRUE(test3 == MatrixMul(test, test_2));
+}

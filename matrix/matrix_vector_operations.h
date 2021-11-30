@@ -93,7 +93,7 @@ static matrix::Matrix<T> MatrixMul(const std::vector<T> &vector_a,
 
   for (int i = 0; i < vector_a.size(); i++)
     for (int j = 0; j < vector_b.size(); j++)
-      output.Get(i, j) = vector_a[i] * vector_b[i];
+      output.Get(i, j) = vector_a[i] * vector_b[j];
 
   return output;
 }
@@ -101,6 +101,9 @@ static matrix::Matrix<T> MatrixMul(const std::vector<T> &vector_a,
 template <class T>
 static std::vector<T> HadamardProduct(const std::vector<T> &vector_a,
                                       const std::vector<T> &vector_b) {
+
+  if(vector_a.size() != vector_b.size()) throw "incorrect vector dimensions";
+
   std::vector<T> hadamard_product(vector_a);
   for (auto i = 0; i < hadamard_product.size(); i++)
     hadamard_product[i] *= vector_b[i];

@@ -108,9 +108,9 @@ double NeuralNet::PropagateBackwards(const std::vector<double> &output_error,
                 network_layers_[network_layers_.size() - 2].GetNodes());
 
   std::vector<double> hidden_layer_error = HadamardProduct(
-      ApplySigmoidDerivative(Mul(
-          Transpose(network_layers_[network_layers_.size() - 2].GetWeights()),
-          output_layer_error)),
+      ApplySigmoidDerivative(
+          Mul(output_layer_error,
+              network_layers_[network_layers_.size() - 2].GetWeights())),
       network_layers_[network_layers_.size() - 2].GetNodes());
 
   const std::vector<double> &hidden_layer_bias_error = hidden_layer_error;
@@ -119,9 +119,9 @@ double NeuralNet::PropagateBackwards(const std::vector<double> &output_error,
       MatrixMul(input_values, hidden_layer_error);
 
   // -------- apply changes -------
-  network_layers_.back().SetWeights(
-      matrix::Sub(network_layers_.back().GetWeights(),
-                  matrix::Mul(output_layer_weight_gradient, learning_rate)));
+  network_layers_.back().SetWeights(matrix::Sub(
+      network_layers_.back().GetWeights(),
+      Transpose(matrix::Mul(output_layer_weight_gradient, learning_rate))));
 
   network_layers_.back().SetBiases(
       Sub(network_layers_.back().GetBiases(),
@@ -132,7 +132,7 @@ double NeuralNet::PropagateBackwards(const std::vector<double> &output_error,
                   matrix::Mul(hidden_layer_weight_gradient, learning_rate)));
 
   network_layers_[network_layers_.size() - 2].SetBiases(
-      Sub(network_layers_.back().GetBiases(),
+      Sub(network_layers_[network_layers_.size() - 2].GetBiases(),
           Mul(hidden_layer_bias_error, learning_rate)));
 
   return cumulative_error;
