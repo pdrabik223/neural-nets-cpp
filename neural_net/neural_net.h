@@ -9,10 +9,13 @@
 #include <string>
 
 #define E 2.7'182'818'284
+//todo move sigmoid and relu functions to layer class
+//todo create tests for all of the mul, div etc... functions
+
 class NeuralNet {
 
 public:
-  enum class NormalizingFunction { RELU, SIGMOID };
+
   /// \param hidden_layer_sizes array of  uint numbers that represent
   /// consecutive layer sizes
   NeuralNet(size_t input_layer_size,
@@ -34,6 +37,8 @@ public:
   void Show();
 
   std::vector<double> FeedForward(const std::vector<double> &input);
+  double PropagateBackwards(const std::vector<double> &output_error,
+                          double learning_rate);
 
   static double CostFunction(const std::vector<double> &n_n_output,
                              const std::vector<double> &expected_output) {
@@ -58,29 +63,27 @@ public:
   }
 
 private:
+  std::vector<double> ApplySigmoidDerivative(const std::vector<double>& vector_a);
   static std::vector<double> &
   ApplyNormalizingFunction(std::vector<double> &target_vector,
                            NormalizingFunction function_type);
 
-  static std::string ToString(NeuralNet::NormalizingFunction func);
+  static std::string ToString(NormalizingFunction func);
 
-  static double Relu(double val);
-  static double Sigmoid(double val) { return 1.0 - 1.0 / (1.0 + exp(val)); }
-  static double SigmoidDerivative(double val) {
-    return Sigmoid(val) * (1 - Sigmoid(val));
-  }
+
 
 protected:
   size_t input_layer_size_;
   size_t output_layer_size;
-  std::vector<Layer> hidden_layers_;
+  std::vector<double> input_values;
+  std::vector<Layer> network_layers_;
   std::vector<NormalizingFunction> functions;
 };
-static std::string ToString(NeuralNet::NormalizingFunction func) {
+static std::string ToString(NormalizingFunction func) {
   switch (func) {
-  case NeuralNet::NormalizingFunction::RELU:
+  case NormalizingFunction::RELU:
     return "Relu";
-  case NeuralNet::NormalizingFunction::SIGMOID:
+  case NormalizingFunction::SIGMOID:
     return "Sigmoid";
 
   }

@@ -5,13 +5,26 @@
 #include "neural_net.h"
 #include <iostream>
 #include <matrix.h>
+
+double LinearFunction(double x) { return 5 * x + 5; }
+
 int main() {
 
-  NeuralNet test(2,  2);
-  test.FillWeights(1);
-  test.FillBiases(0);
-  test.Show();
-  std::cout << ToString(test.FeedForward({-1, 5}));
+  NeuralNet test(1, {3}, 1);
+  test.FillRandom();
+
+  for (int i = 0; i < 100; i++) {
+
+    std::vector<double> input;
+    input.push_back((double)rand() / (double)RAND_MAX);
+
+    std::vector<double> target;
+    target.push_back(LinearFunction(input[0]));
+
+    auto nnError = test.NNError(test.FeedForward(input), target);
+    test.PropagateBackwards(nnError, 0.1);
+    std::cout << "i: " << i << "  error: " << nnError[0] << std::endl;
+  }
 
   //
 

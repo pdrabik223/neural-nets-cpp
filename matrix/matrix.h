@@ -17,6 +17,8 @@ public:
   Matrix(const Matrix &) = default;
   Matrix &operator=(const Matrix &) = default;
 
+  void Transpose();
+
   /// access specific value by reference
   /// \param i the 'height' part
   /// \param j the 'width' part
@@ -53,6 +55,8 @@ public:
   void Add(const T &other);
   void Add(const Matrix<T> &other);
   void Add(const std::vector<T> &other);
+
+  void Sub(const Matrix<T> &other);
 
   void Mul(const T &other);
   void Mul(const Matrix<T> &other);
@@ -151,11 +155,30 @@ static Matrix<T> Add(const Matrix<T> &matrix_a, const Matrix<T> &matrix_b) {
       addition.Get(i, j) += matrix_b.Get(i, j);
   return addition;
 }
+template <class T>
+static Matrix<T> Sub(const Matrix<T> &matrix_a, const Matrix<T> &matrix_b) {
+  if (matrix_a.GetWidth() != matrix_b.GetWidth())
+    throw "incorrect matrix shape";
+  if (matrix_a.GetHeight() != matrix_b.GetHeight())
+    throw "incorrect matrix shape";
+
+  Matrix<T> addition(matrix_a);
+  for (int i = 0; i < matrix_a.GetHeight(); i++)
+    for (int j = 0; j < matrix_a.GetWidth(); j++)
+      addition.Get(i, j) -= matrix_b.Get(i, j);
+  return addition;
+}
 
 template <class T> void Matrix<T>::Add(const Matrix<T> &other) {
   for (int i = 0; i < height_; i++)
     for (int j = 0; j < width_; j++)
       Get(i, j) += other.Get(i, j);
+}
+
+template <class T> void Matrix<T>::Sub(const Matrix<T> &other) {
+  for (int i = 0; i < height_; i++)
+    for (int j = 0; j < width_; j++)
+      Get(i, j) -= other.Get(i, j);
 }
 
 template <class T> void Matrix<T>::Add(const std::vector<T> &other) {
@@ -187,7 +210,7 @@ template <class T> void Matrix<T>::Mul(const Matrix<T> &other) {
 }
 
 template <class T>
-static std::vector<T> Mul(const Matrix<T> matrix_a,
+static std::vector<T> Mul(const Matrix<T>& matrix_a,
                           const std::vector<T> &other) {
   if (matrix_a.GetWidth() != other.size())
     throw "incorrect matrix sizes";
@@ -198,7 +221,7 @@ static std::vector<T> Mul(const Matrix<T> matrix_a,
 
   for (int i = 0; i < matrix_a.GetHeight(); i++)
     for (int j = 0; j < matrix_a.GetWidth(); j++) {
-      multiplication[i] += matrix_a.Get(i, j) * other[j];
+      multiplication[j] += matrix_a.Get(i, j) * other[j];
     }
   return multiplication;
 }
@@ -221,10 +244,9 @@ static Matrix<T> Mul(const Matrix<T> &matrix_a, const T &value) {
 
   Matrix<T> multiplication(matrix_a.GetHeight(), matrix_a.GetWidth());
 
-  for (int i = 0; i < multiplication.height_; i++)
-    for (int j = 0; j < multiplication.width_; j++) {
-      for (int k = 0; k < matrix_a.GetWidth(); k++)
-        multiplication.Get(i, j) += matrix_a.Get(i, k) * matrix_a.Get(k, j);
+  for (int i = 0; i < multiplication.GetHeight(); i++)
+    for (int j = 0; j < multiplication.GetWidth(); j++) {
+      multiplication.Get(i, j) *= value;
     }
   return multiplication;
 }
@@ -249,63 +271,19 @@ template <class T> bool Matrix<T>::operator==(const Matrix &rhs) const {
 template <class T> bool Matrix<T>::operator!=(const Matrix &rhs) const {
   return !(rhs == *this);
 }
+template <class T> void Matrix<T>::Transpose() {
+
+  auto copy(*this);
+
+  std::swap(height_, width_);
+  for (int i = 0; i < height_; i++)
+    for (int j = 0; j < width_; j++) {
+      Get(i, j) = copy.Get(j, i);
+    }
+
+}
 
 } // namespace matrix
-template <class T> static std::string ToString(const matrix::Matrix<T> &other) {
-  std::string output = "[[";
 
-  for (int i = 0; i < other.GetHeight(); i++) {
-    for (int j = 0; j < other.GetWidth(); j++) {
-
-      if (j < other.GetWidth() - 1)
-        output += std::to_string(other.Get(i, j)) + ", ";
-      else
-        output += std::to_string(other.Get(i, j)) + "]";
-    }
-    if (i < other.GetHeight() - 1)
-      output += ",\n[";
-  }
-  output += ']';
-
-  return output;
-}
-
-template <class T> static std::string ToString(const std::vector<T> &other) {
-  std::string output = "[";
-
-  for (int j = 0; j < other.size(); j++)
-    if (j < other.size() - 1)
-      output += std::to_string(other[j]) + ", ";
-    else
-      output += std::to_string(other[j]);
-
-  output += "]";
-
-  return output;
-}
-
-template <class T>
-static std::vector<T> Add(const std::vector<T> &vector_a,
-                          const std::vector<T> &vector_b) {
-
-  if (vector_a.size() != vector_b.size())
-    throw "incorrect vector shape";
-
-  std::vector<T> sum(vector_a);
-  for (auto i = 0; i < sum.size(); i++)
-    sum[i] += vector_b[i];
-
-  return sum;
-}
-
-template <class T>
-static std::vector<T> HadamardProduct(const std::vector<T> &vector_a,
-                          const std::vector<T> &vector_b){
-  std::vector<T> hadamard_product(vector_a);
-  for (auto i = 0; i < hadamard_product.size(); i++)
-    hadamard_product[i] *= vector_b[i];
-
-  return hadamard_product;
-}
 
 #endif // NEURAL_NETS_CPP_MATRIX_MATRIX_H_

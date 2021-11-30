@@ -1,7 +1,7 @@
 //
 // Created by piotr on 22/11/2021.
 //
-#include "matrix.h"
+#include "matrix_vector_operations.h"
 #include <gtest/gtest.h>
 TEST(Matrix, size_constructor_2x2) {
   matrix::Matrix<double> test(2, 2);
@@ -101,7 +101,7 @@ TEST(Matrix, Vector_Multiplication_2x2_2) {
   EXPECT_TRUE(solution == matrix::Mul(test, test2));
 }
 
-TEST(Matrix, Vector_Multiplication_2x3_3) {
+TEST(Matrix, Vector_Multiplication_2x3_3)  {
 
   matrix::Matrix<int> test({{1, 2, 3}, {4, 5, 6}});
   std::vector<int> test2({1, 2, 3});
@@ -128,3 +128,4 @@ TEST(Vector, Vector_sum) {
 
   EXPECT_TRUE(test3 == Add(test, test2));
 }
+

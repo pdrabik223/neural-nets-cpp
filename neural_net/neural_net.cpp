@@ -10,54 +10,39 @@ NeuralNet::NeuralNet(size_t input_layer_size,
     : input_layer_size_(input_layer_size),
       output_layer_size(output_layer_size) {
 
+  network_layers_.emplace_back(input_layer_size, hidden_layer_sizes[0],
+                               NormalizingFunction::SIGMOID);
+
   for (int i = 1; i < hidden_layer_sizes.size(); i++) {
-    hidden_layers_.emplace_back(hidden_layer_sizes[i - 1],
-                                hidden_layer_sizes[i]);
-    functions.push_back(NormalizingFunction::RELU);
+    network_layers_.emplace_back(hidden_layer_sizes[i - 1],
+                                 hidden_layer_sizes[i],
+                                 NormalizingFunction::SIGMOID);
   }
 
-  hidden_layers_.emplace_back(hidden_layer_sizes.back(), output_layer_size);
-  functions.push_back(NormalizingFunction::RELU);
+  network_layers_.emplace_back(hidden_layer_sizes.back(), output_layer_size,
+                               NormalizingFunction::SIGMOID);
 }
 NeuralNet::NeuralNet(size_t input_layer_size, size_t output_layer_size)
     : input_layer_size_(input_layer_size),
       output_layer_size(output_layer_size) {
 
-  hidden_layers_.emplace_back(input_layer_size, output_layer_size);
-  functions.push_back(NormalizingFunction::SIGMOID);
+  network_layers_.emplace_back(input_layer_size, output_layer_size,
+                               NormalizingFunction::SIGMOID);
 }
-std::string NeuralNet::ToString(NeuralNet::NormalizingFunction func) {
+std::string NeuralNet::ToString(NormalizingFunction func) {
   switch (func) {
-  case NeuralNet::NormalizingFunction::RELU:
+  case NormalizingFunction::RELU:
     return "Relu";
   case NormalizingFunction::SIGMOID:
     return "Sigmoid";
-
   }
 }
-std::vector<double> &NeuralNet::ApplyNormalizingFunction(
-    std::vector<double> &target_vector,
-    NeuralNet::NormalizingFunction function_type) {
-  switch (function_type) {
 
-  case NormalizingFunction::RELU:
-    for (auto &target : target_vector)
-      target = Relu(target);
-    break;
-  case NormalizingFunction::SIGMOID:
-    for (auto &target : target_vector)
-      target = Sigmoid(target);
-    break;
-  }
-  return target_vector;
-}
 std::vector<double> NeuralNet::FeedForward(const std::vector<double> &input) {
   std::vector<double> buffer = input;
-
-  for (int i = 0; i < hidden_layers_.size(); i++) {
-    buffer = hidden_layers_[i].FeedForward(buffer);
-    buffer = ApplyNormalizingFunction(buffer, functions[i]);
-  }
+  input_values = input;
+  for (auto &network_layer : network_layers_)
+    buffer = network_layer.FeedForward(buffer);
 
   return buffer;
 }
@@ -65,35 +50,90 @@ void NeuralNet::Show() {
 
   std::cout << "input layer size: " << input_layer_size_ << std::endl;
 
-  for (int i = 0; i < hidden_layers_.size() - 1; i++) {
+  for (int i = 0; i < network_layers_.size() - 1; i++) {
     std::cout << "hidden layer " << i << "normalizing_function"
               << ToString(functions[i]);
-    hidden_layers_[i].Show();
+    network_layers_[i].Show();
     std::cout << std::endl;
   }
 
   std::cout << "output layer ";
-  hidden_layers_[hidden_layers_.size() - 1].Show();
+  network_layers_.back().Show();
   std::cout << std::endl;
 }
 void NeuralNet::FillBiases(double value) {
-  for (auto &hidden_layer : hidden_layers_) {
+  for (auto &hidden_layer : network_layers_) {
     hidden_layer.FillBiases(value);
   }
 }
 void NeuralNet::FillWeights(double value) {
-  for (auto &hidden_layer : hidden_layers_) {
+  for (auto &hidden_layer : network_layers_) {
     hidden_layer.FillWeights(value);
   }
 }
 void NeuralNet::FillRandom() {
-  for (auto &hidden_layer : hidden_layers_) {
+  for (auto &hidden_layer : network_layers_) {
     hidden_layer.FillRandom();
   }
 }
-double NeuralNet::Relu(double val) {
-  if (val < 0)
-    return 0;
-  else
-    return val;
+
+std::vector<double>
+NeuralNet::ApplySigmoidDerivative(const std::vector<double> &vector_a) {
+
+  std::vector<double> solution;
+  solution.reserve(vector_a.size());
+
+  for (auto i : vector_a)
+    solution.push_back(Layer::SigmoidDerivative(i));
+  return solution;
+}
+
+double NeuralNet::PropagateBackwards(const std::vector<double> &output_error,
+                                     double learning_rate) {
+
+  assert(output_error.size() == output_layer_size);
+
+  // ========= BP1 =========
+  double cumulative_error = 0;
+  for (auto i : output_error)
+    cumulative_error += i;
+
+  std::vector<double> output_layer_error = HadamardProduct(
+      ApplySigmoidDerivative(output_error), network_layers_.back().GetNodes());
+
+  const std::vector<double> &output_layer_bias_error = output_layer_error;
+
+  matrix::Matrix<double> output_layer_weight_gradient =
+      MatrixMul(output_layer_error,
+                network_layers_[network_layers_.size() - 2].GetNodes());
+
+  std::vector<double> hidden_layer_error = HadamardProduct(
+      ApplySigmoidDerivative(Mul(
+          Transpose(network_layers_[network_layers_.size() - 2].GetWeights()),
+          output_layer_error)),
+      network_layers_[network_layers_.size() - 2].GetNodes());
+
+  const std::vector<double> &hidden_layer_bias_error = hidden_layer_error;
+
+  matrix::Matrix<double> hidden_layer_weight_gradient =
+      MatrixMul(input_values, hidden_layer_error);
+
+  // -------- apply changes -------
+  network_layers_.back().SetWeights(
+      matrix::Sub(network_layers_.back().GetWeights(),
+                  matrix::Mul(output_layer_weight_gradient, learning_rate)));
+
+  network_layers_.back().SetBiases(
+      Sub(network_layers_.back().GetBiases(),
+          Mul(output_layer_bias_error, learning_rate)));
+
+  network_layers_[network_layers_.size() - 2].SetWeights(
+      matrix::Sub(network_layers_[network_layers_.size() - 2].GetWeights(),
+                  matrix::Mul(hidden_layer_weight_gradient, learning_rate)));
+
+  network_layers_[network_layers_.size() - 2].SetBiases(
+      Sub(network_layers_.back().GetBiases(),
+          Mul(hidden_layer_bias_error, learning_rate)));
+
+  return cumulative_error;
 }

@@ -14,6 +14,7 @@ set(matrix_dir
         matrix/matrix_double.h
         matrix/matrix.h
         matrix/matrix.cpp
+        matrix/matrix_vector_operations.h
         )
 set(neural_net_dir
         neural_net/neural_net.h

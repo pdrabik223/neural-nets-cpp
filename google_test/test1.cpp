@@ -113,3 +113,5 @@ TEST(MatrixClass, Multiplication_succes_3x2) {
   MatrixD solution({{9, 12, 15}, {19, 26, 33}, {29, 40, 51}});
   EXPECT_TRUE(solution == test * test2);
 }
+
+
