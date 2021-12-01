@@ -30,7 +30,6 @@ NeuralNet::NeuralNet(size_t input_layer_size, size_t output_layer_size)
                                NormalizingFunction::SIGMOID);
 }
 
-
 std::vector<double> NeuralNet::FeedForward(const std::vector<double> &input) {
   std::vector<double> buffer = input;
   input_values = input;
@@ -90,10 +89,9 @@ double NeuralNet::PropagateBackwards(const std::vector<double> &output_error,
     cumulative_error += i;
 
   std::vector<double> output_layer_error =
-      //      HadamardProduct(
-      ApplySigmoidDerivative(output_error);
-  //                      network_layers_[network_layers_.size() -
-  //                      1].GetNodes());
+//      HadamardProduct(
+          ApplySigmoidDerivative(output_error);
+//                      network_layers_[network_layers_.size() - 1].GetNodes());
 
   const std::vector<double> &output_layer_bias_error = output_layer_error;
 
@@ -102,12 +100,12 @@ double NeuralNet::PropagateBackwards(const std::vector<double> &output_error,
                 network_layers_[network_layers_.size() - 2].GetNodes());
 
   std::vector<double> hidden_layer_error =
-      //      HadamardProduct(
+//      HadamardProduct(
       ApplySigmoidDerivative(
           Mul(output_layer_error,
               network_layers_[network_layers_.size() - 2].GetWeights()));
 
-  //      network_layers_[network_layers_.size() - 2].GetNodes());
+//      network_layers_[network_layers_.size() - 2].GetNodes());
 
   const std::vector<double> &hidden_layer_bias_error = hidden_layer_error;
 
@@ -117,20 +115,27 @@ double NeuralNet::PropagateBackwards(const std::vector<double> &output_error,
   // -------- apply changes -------
   network_layers_[network_layers_.size() - 1].GetWeights().Sub(
       Transpose(matrix::Mul(output_layer_weight_gradient, learning_rate)));
-
-//  std::cout << ToString(
-//      Transpose(matrix::Mul(output_layer_weight_gradient, learning_rate)));
+//  std::cout << "network_layers_[network_layers_.size() - 1].GetWeights()\n"
+//            << ToString(
+//                   network_layers_[network_layers_.size() - 1].GetWeights())
+//            << "\n";
 
   network_layers_[network_layers_.size() - 1].GetBiases() =
       Sub(network_layers_[network_layers_.size() - 1].GetBiases(),
           Mul(output_layer_bias_error, learning_rate));
+//  std::cout << "network_layers_[network_layers_.size() - 1].GetBiases()\n"
+//            << ToString(network_layers_[network_layers_.size() - 1].GetBiases())
+//            << "\n";
 
   network_layers_[network_layers_.size() - 2].GetWeights().Sub(
       matrix::Mul(hidden_layer_weight_gradient, learning_rate));
+
+//  std::cout<<"network_layers_[network_layers_.size() - 2].GetWeights()\n"<<ToString(network_layers_[network_layers_.size() - 2].GetWeights())<<"\n";
 
   network_layers_[network_layers_.size() - 2].GetBiases() =
       Sub(network_layers_[network_layers_.size() - 2].GetBiases(),
           Mul(hidden_layer_bias_error, learning_rate));
 
+//  std::cout<<"network_layers_[network_layers_.size() - 2].GetBiases()\n"<<ToString(network_layers_[network_layers_.size() - 2].GetBiases())<<"\n";
   return cumulative_error;
 }

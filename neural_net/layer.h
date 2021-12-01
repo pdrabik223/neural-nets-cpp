@@ -42,6 +42,7 @@ public:
               << ToString(biases_) << std::endl;
   };
 
+
   size_t GetLayerHeight() const;
   std::vector<double> &GetBiases() ;
   size_t GetPreviousLayerHeight() const;
@@ -55,7 +56,7 @@ public:
   static double Sigmoid(double val) { return 1.0 - 1.0 / (1.0 + exp(val)); }
 
   static double SigmoidDerivative(double val) {
-    return Sigmoid(val) * (1 - Sigmoid(val));
+    return Sigmoid(val) *  (1 - Sigmoid(val));
   }
 
   std::vector<double> &

@@ -75,9 +75,9 @@ static std::vector<T> Sub(const std::vector<T> &vector_a,
 template <class T>
 static std::vector<T> Mul(const std::vector<T> &vector_a, const T &value) {
 
-  std::vector<T> output(vector_a);
-  for (auto i = 0; i < output.size(); i++)
-    output[i] *= value;
+  std::vector<T> output;
+  for (auto i : vector_a)
+    output.push_back(i * value);
 
   return output;
 }
@@ -102,7 +102,8 @@ template <class T>
 static std::vector<T> HadamardProduct(const std::vector<T> &vector_a,
                                       const std::vector<T> &vector_b) {
 
-  if(vector_a.size() != vector_b.size()) throw "incorrect vector dimensions";
+  if (vector_a.size() != vector_b.size())
+    throw "incorrect vector dimensions";
 
   std::vector<T> hadamard_product(vector_a);
   for (auto i = 0; i < hadamard_product.size(); i++)
