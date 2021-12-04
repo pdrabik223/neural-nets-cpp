@@ -172,12 +172,16 @@ static Matrix<T> Sub(const Matrix<T> &matrix_a, const Matrix<T> &matrix_b) {
 }
 
 template <class T> void Matrix<T>::Add(const Matrix<T> &other) {
+  if(other.GetWidth() != width_ || other.GetHeight() != height_ )  throw "incorrect vector shape";
+
   for (int i = 0; i < height_; i++)
     for (int j = 0; j < width_; j++)
       Get(i, j) += other.Get(i, j);
 }
 
 template <class T> void Matrix<T>::Sub(const Matrix<T> &other) {
+ if(other.GetWidth() != width_ || other.GetHeight() != height_ )  throw "incorrect matrix shape";
+
   for (int i = 0; i < height_; i++)
     for (int j = 0; j < width_; j++)
       Get(i, j) -= other.Get(i, j);

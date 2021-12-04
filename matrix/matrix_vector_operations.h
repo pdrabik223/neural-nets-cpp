@@ -83,6 +83,29 @@ static std::vector<T> Mul(const std::vector<T> &vector_a, const T &value) {
 }
 
 template <class T>
+static std::vector<T> Mul(const matrix::Matrix<T> &matrix_a,
+                          const std::vector<T> &vector_b) {
+
+
+  if (matrix_a.GetWidth() != vector_b.size())
+    throw "incorrect matrix sizes";
+
+  std::vector<T> multiplication;
+
+
+  for (int i = 0; i < matrix_a.GetHeight(); i++)
+    multiplication.push_back(T(0));
+
+  for (int j = 0; j < matrix_a.GetWidth(); j++)
+    for (int i = 0; i < matrix_a.GetHeight(); i++) {
+      multiplication[i] += matrix_a.Get(i, j) * vector_b[j];
+    }
+
+  return multiplication;
+
+}
+
+template <class T>
 static matrix::Matrix<T> MatrixMul(const std::vector<T> &vector_a,
                                    const std::vector<T> &vector_b) {
 

@@ -53,7 +53,7 @@ public:
 
   static double Relu(double val);
 
-  static double Sigmoid(double val) { return 1.0 - 1.0 / (1.0 + exp(val)); }
+  static double Sigmoid(double val) { return  (1.0 - 1.0 / (1.0 + exp(val))); }
 
   static double SigmoidDerivative(double val) {
     return Sigmoid(val) *  (1 - Sigmoid(val));

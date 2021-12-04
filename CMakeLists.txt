@@ -3,11 +3,17 @@ project(neural_nets_cpp)
 
 set(CMAKE_CXX_STANDARD 14)
 
+find_package(ROOT REQUIRED COMPONENTS Core Gui)
+
 include_directories(matrix)
 include_directories(neural_net)
+include_directories(ROOT_INCLUDE_DIRS)
+
 add_subdirectory(googletest)
 add_subdirectory(google_test)
 enable_testing()
+
+
 
 set(matrix_dir
         matrix/matrix_double.cpp
@@ -25,3 +31,5 @@ set(neural_net_dir
 add_executable(neural_nets_cpp  main.cpp
         ${matrix_dir}
         ${neural_net_dir})
+
+target_link_libraries(neural_nets_cpp PUBLIC ROOT::Core ROOT::Gui)

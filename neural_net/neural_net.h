@@ -8,7 +8,6 @@
 #include "layer.h"
 #include <string>
 
-#define E 2.7'182'818'284
 // todo move sigmoid and relu functions to layer class
 // todo create tests for all of the mul, div etc... functions
 
@@ -40,26 +39,13 @@ public:
                             double learning_rate);
 
   static double CostFunction(const std::vector<double> &n_n_output,
-                             const std::vector<double> &expected_output) {
-    if (n_n_output.size() != expected_output.size())
-      throw "incorrect vector dimensions";
-
-    double error = 0.0;
-    for (int i = 0; i < n_n_output.size(); i++)
-      error += pow(n_n_output[i] - expected_output[i], 2);
-
-    return error;
-  }
+                             const std::vector<double> &expected_output);
   static std::vector<double>
   NNError(const std::vector<double> &n_n_output,
-          const std::vector<double> &expected_output) {
-    std::vector<double> error;
-    error.reserve(n_n_output.size());
+          const std::vector<double> &expected_output);
 
-    for (int i = 0; i < n_n_output.size(); i++)
-      error.push_back(n_n_output[i] - expected_output[i]);
-
-    return error;
+  const std::vector<double> &Activations(unsigned layer_id) const {
+    return network_layers_[layer_id].GetNodes();
   }
 
   Layer &GetLayer(unsigned layer_id) { return network_layers_[layer_id]; }
@@ -73,7 +59,6 @@ protected:
   size_t output_layer_size;
   std::vector<double> input_values;
   std::vector<Layer> network_layers_;
-
 };
 static std::string ToString(NormalizingFunction func) {
   switch (func) {
