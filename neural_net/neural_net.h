@@ -35,20 +35,20 @@ public:
   void Show();
 
   std::vector<double> FeedForward(const std::vector<double> &input);
-  double PropagateBackwards(const std::vector<double> &output_error,
+
+  double PropagateBackwards(const std::vector<double> &expected,
                             double learning_rate);
 
-  static double CostFunction(const std::vector<double> &n_n_output,
-                             const std::vector<double> &expected_output);
-  static std::vector<double>
-  NNError(const std::vector<double> &n_n_output,
-          const std::vector<double> &expected_output);
+  std::vector<double>
+  CostFunction(const std::vector<double> &expected_output) const;
 
   const std::vector<double> &Activations(unsigned layer_id) const {
     return network_layers_[layer_id].GetNodes();
   }
 
   Layer &GetLayer(unsigned layer_id) { return network_layers_[layer_id]; }
+
+  size_t LayersCount() const { return network_layers_.size(); }
 
 private:
   std::vector<double>

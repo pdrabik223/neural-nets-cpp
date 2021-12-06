@@ -59,6 +59,15 @@ template <class T> matrix::Matrix<T> Transpose(const matrix::Matrix<T> &other) {
   return transposed_matrix;
 }
 
+template <class T> matrix::Matrix<T> Transpose(const std::vector<T> &other) {
+  matrix::Matrix<T> transposed_matrix(other.size(), 1);
+
+  for (int i = 0; i < other.size(); i++)
+    transposed_matrix.Get(i, 0) = other[i];
+
+  return transposed_matrix;
+}
+
 template <class T>
 static std::vector<T> Sub(const std::vector<T> &vector_a,
                           const std::vector<T> &vector_b) {
@@ -86,12 +95,10 @@ template <class T>
 static std::vector<T> Mul(const matrix::Matrix<T> &matrix_a,
                           const std::vector<T> &vector_b) {
 
-
   if (matrix_a.GetWidth() != vector_b.size())
     throw "incorrect matrix sizes";
 
   std::vector<T> multiplication;
-
 
   for (int i = 0; i < matrix_a.GetHeight(); i++)
     multiplication.push_back(T(0));
@@ -102,7 +109,6 @@ static std::vector<T> Mul(const matrix::Matrix<T> &matrix_a,
     }
 
   return multiplication;
-
 }
 
 template <class T>
@@ -122,15 +128,66 @@ static matrix::Matrix<T> MatrixMul(const std::vector<T> &vector_a,
 }
 
 template <class T>
+static matrix::Matrix<T> DotProduct(const matrix::Matrix<T> &matrix,
+                                    const std::vector<T> vector) {
+
+  if (matrix.GetWidth() != 1)
+    throw "incorrect matrix size";
+
+  matrix::Matrix<T> dot_product(matrix.GetHeight(), vector.size());
+  dot_product.Fill(0);
+  for (int i = 0; i < matrix.GetHeight(); i++)
+    for (int j = 0; j < vector.size(); j++)
+      dot_product.Get(i, j) += matrix.Get(i, 0) * vector[j];
+
+  return dot_product;
+}
+template <class T>
+static T SkalarDotProduct(const matrix::Matrix<T> &matrix,
+                                    const std::vector<T> vector) {
+
+  if(matrix.GetHeight() != 1)
+    throw "incorrect matrix shape";
+
+  if(matrix.GetWidth() != vector.size())
+    throw "incorrect shape";
+
+  T dot_product;
+
+  for (int i = 0; i < matrix.GetWidth(); i++)
+      dot_product += matrix.Get(0, 1) * vector[i];
+
+  return dot_product;
+}
+
+
+template <class T>
+static std::vector<T> HadamardProduct(const matrix::Matrix<T> &matrix_a,
+                                      const std::vector<T> &vector_b) {
+
+  if (matrix_a.GetHeight() != 1)
+    throw "incorrect matrix dimensions";
+
+  if (matrix_a.GetWidth() != vector_b.size())
+    throw "incorrect vector dimensions";
+
+  std::vector<T> hadamard_product(vector_b);
+  for (auto i = 0; i < hadamard_product.size(); i++)
+    hadamard_product[i] *= matrix_a.Get(0, i);
+
+  return hadamard_product;
+}
+
+template <class T>
 static std::vector<T> HadamardProduct(const std::vector<T> &vector_a,
                                       const std::vector<T> &vector_b) {
 
   if (vector_a.size() != vector_b.size())
     throw "incorrect vector dimensions";
 
-  std::vector<T> hadamard_product(vector_a);
+  std::vector<T> hadamard_product(vector_b);
   for (auto i = 0; i < hadamard_product.size(); i++)
-    hadamard_product[i] *= vector_b[i];
+    hadamard_product[i] *= vector_a[i];
 
   return hadamard_product;
 }

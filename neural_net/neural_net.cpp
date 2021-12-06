@@ -78,88 +78,63 @@ NeuralNet::ApplySigmoidDerivative(const std::vector<double> &vector_a) {
   return solution;
 }
 
-double NeuralNet::PropagateBackwards(const std::vector<double> &output_error,
+double NeuralNet::PropagateBackwards(const std::vector<double> &expected,
                                      double learning_rate) {
-
-  assert(output_error.size() == output_layer_size);
-
-  // ========= BP1 =========
-  double cumulative_error = 0;
-  for (auto i : output_error)
-    cumulative_error += i;
-
+  // output layer
   std::vector<double> delta = HadamardProduct(
-      output_error,
+      CostFunction(expected),
       ApplySigmoidDerivative(Activations(network_layers_.size() - 1)));
 
-  const std::vector<double> &output_layer_bias_error = delta;
+  const std::vector<double> nabla_b = delta;
 
-  const matrix::Matrix<double> &output_layer_weight_gradient =
-      MatrixMul(delta, Activations(network_layers_.size() - 2));
+  const matrix::Matrix<double> nabla_w =
+      DotProduct(Transpose(delta), Activations(network_layers_.size() - 2));
 
-  auto sp = ApplySigmoidDerivative(Activations(network_layers_.size() - 2));
+  // hidden layers
+  const std::vector<double> sp =
+      ApplySigmoidDerivative(Activations(network_layers_.size() - 2));
 
-  std::vector<double> hidden_delta = HadamardProduct(
+  delta = HadamardProduct(
+      sp,
       Mul(Transpose(network_layers_[network_layers_.size() - 2].GetWeights()),
-          delta),
-      sp);
+          delta));
+  //
+  //  delta = HadamardProduct(delta, sp);
 
-  const std::vector<double> &hidden_layer_bias_error = hidden_delta;
+  const std::vector<double> hidden_layer_bias_error = delta;
 
-  const matrix::Matrix<double> &hidden_layer_weight_gradient =
-      MatrixMul(hidden_delta, input_values);
+  const matrix::Matrix<double> hidden_layer_weight_gradient =
+      DotProduct(Transpose(delta), input_values);
 
   // -------- apply changes -------
   network_layers_[network_layers_.size() - 1].GetWeights().Sub(
-      Transpose(matrix::Mul(output_layer_weight_gradient, learning_rate)));
-  //  std::cout << "network_layers_[network_layers_.size() - 1].GetWeights()\n"
-  //            << ToString(
-  //                   network_layers_[network_layers_.size() - 1].GetWeights())
-  //            << "\n";
+      Transpose(matrix::Mul(nabla_w, learning_rate)));
 
   network_layers_[network_layers_.size() - 1].GetBiases() =
       Sub(network_layers_[network_layers_.size() - 1].GetBiases(),
-          Mul(output_layer_bias_error, learning_rate));
-  //  std::cout << "network_layers_[network_layers_.size() - 1].GetBiases()\n"
-  //            << ToString(network_layers_[network_layers_.size() -
-  //            1].GetBiases())
-  //            << "\n";
+          Mul(nabla_b, learning_rate));
 
   network_layers_[network_layers_.size() - 2].GetWeights().Sub(
       Transpose(matrix::Mul(hidden_layer_weight_gradient, learning_rate)));
-  //
-  //  std::cout<<"network_layers_[network_layers_.size() -
-  //  2].GetWeights()\n"<<ToString(network_layers_[network_layers_.size() -
-  //  2].GetWeights())<<"\n";
 
   network_layers_[network_layers_.size() - 2].GetBiases() =
       Sub(network_layers_[network_layers_.size() - 2].GetBiases(),
           Mul(hidden_layer_bias_error, learning_rate));
-  //
-  //  std::cout<<"network_layers_[network_layers_.size() -
-  //  2].GetBiases()\n"<<ToString(network_layers_[network_layers_.size() -
-  //  2].GetBiases())<<"\n";
-  return cumulative_error;
-}
-double NeuralNet::CostFunction(const std::vector<double> &n_n_output,
-                               const std::vector<double> &expected_output) {
-  if (n_n_output.size() != expected_output.size())
-    throw "incorrect vector dimensions";
 
-  double error = 0.0;
-  for (int i = 0; i < n_n_output.size(); i++)
-    error += pow(n_n_output[i] - expected_output[i], 2);
-
-  return error;
+  double sum = 0.0;
+  for (auto i : CostFunction(expected))
+    sum += i;
+  return sum;
 }
+
 std::vector<double>
-NeuralNet::NNError(const std::vector<double> &n_n_output,
-                   const std::vector<double> &expected_output) {
-  std::vector<double> error;
-  error.reserve(n_n_output.size());
+NeuralNet::CostFunction(const std::vector<double> &expected_output) const {
 
-  for (int i = 0; i < n_n_output.size(); i++)
-    error.push_back(n_n_output[i] - expected_output[i]);
+  std::vector<double> error;
+  error.reserve(Activations(LayersCount() - 1).size());
+
+  for (int i = 0; i < Activations(LayersCount() - 1).size(); i++)
+    error.push_back(Activations(LayersCount() - 1)[i] - expected_output[i]);
 
   return error;
 }
