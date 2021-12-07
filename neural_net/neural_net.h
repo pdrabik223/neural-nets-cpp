@@ -34,15 +34,15 @@ public:
 
   void Show();
 
-  std::vector<double> FeedForward(const std::vector<double> &input);
+  matrix::Matrix<double> FeedForward(const std::vector<double> &input);
 
   double PropagateBackwards(const std::vector<double> &expected,
                             double learning_rate);
 
-  std::vector<double>
+  matrix::Matrix<double>
   CostFunction(const std::vector<double> &expected_output) const;
 
-  const std::vector<double> &Activations(unsigned layer_id) const {
+  const matrix::Matrix<double> &Activations(unsigned layer_id) const {
     return network_layers_[layer_id].GetNodes();
   }
 
@@ -51,13 +51,13 @@ public:
   size_t LayersCount() const { return network_layers_.size(); }
 
 private:
-  std::vector<double>
-  ApplySigmoidDerivative(const std::vector<double> &vector_a);
+  static matrix::Matrix<double>
+  ApplySigmoidDerivative(const matrix::Matrix<double> &vector_a);
 
 protected:
   size_t input_layer_size_;
   size_t output_layer_size;
-  std::vector<double> input_values;
+  matrix::Matrix<double> input_values;
   std::vector<Layer> network_layers_;
 };
 static std::string ToString(NormalizingFunction func) {

@@ -20,7 +20,7 @@ set(neural_net_dir
         ${CMAKE_SOURCE_DIR}/neural_net/layer.h
         ${CMAKE_SOURCE_DIR}/neural_net/layer.cpp
         )
-add_executable(GTests test2.cpp
+add_executable(GTests test3.cpp
         ${matrix_dir}
         ${neural_net_dir})
 
