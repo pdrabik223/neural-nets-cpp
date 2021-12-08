@@ -33,8 +33,8 @@ NeuralNet::NeuralNet(size_t input_layer_size, size_t output_layer_size)
 matrix::Matrix<double>
 NeuralNet::FeedForward(const std::vector<double> &input) {
 
-  input_values = matrix::Matrix<double>(input.size(), 1);
-  input_values.RawData() = input;
+  input_values_ = matrix::Matrix<double>(input.size(), 1);
+  input_values_.RawData() = input;
 
   matrix::Matrix<double> buffer(input.size(), 1);
   buffer.RawData() = input;
@@ -75,36 +75,6 @@ void NeuralNet::FillRandom() {
   }
 }
 
-matrix::Matrix<double>
-NeuralNet::ApplySigmoidDerivative(const matrix::Matrix<double> &vector_a) {
-
-  if (!vector_a.IsVector())
-    throw "incorrect vector shape";
-
-  matrix::Matrix<double> solution(vector_a.GetHeight(), 1);
-
-  for (int i = 0; i < vector_a.GetHeight(); i++)
-    for (int j = 0; j < vector_a.GetWidth(); j++)
-      solution.Get(i, j) = (Layer::SigmoidDerivative(vector_a.Get(i, j)));
-
-  return solution;
-}
-
-matrix::Matrix<double>
-NeuralNet::ApplyReluDerivative(const matrix::Matrix<double> &vector_a) {
-
-  if (!vector_a.IsVector())
-    throw "incorrect vector shape";
-
-  matrix::Matrix<double> solution(vector_a.GetHeight(), 1);
-
-  for (int i = 0; i < vector_a.GetHeight(); i++)
-    for (int j = 0; j < vector_a.GetWidth(); j++)
-      solution.Get(i, j) = (Layer::ReluDerivative(vector_a.Get(i, j)));
-
-  return solution;
-}
-
 // There are only two hard things in Computer Science:
 //  cache invalidation and naming things.
 //
@@ -117,32 +87,29 @@ double NeuralNet::PropagateBackwards(const std::vector<double> &expected,
   // output layer
   matrix::Matrix<double> delta = HadamardProduct(
       CostFunction(expected),
-      ApplyReluDerivative(Nodes(
-          network_layers_.size() -
-          1))); // here mateusz suggest doing raw activations without sigmoid
+      Layer::ApplyDerivative(Nodes( - 1),
+                             ActivationFunction( - 2)));
 
   const matrix::Matrix<double> kNablaB = delta;
 
   const matrix::Matrix<double> kNablaW =
-      Mul(delta, Transpose(Activations(network_layers_.size() - 2)));
+      Mul(delta, Transpose(Activations( - 2)));
 
   // hidden layers
-  const matrix::Matrix<double> sp = ApplyReluDerivative(
-      Nodes(network_layers_.size() -
-            2)); // here mateusz suggest doing raw activations without sigmoid
+  const matrix::Matrix<double> kSp =
+      Layer::ApplyDerivative(Nodes( - 2),
+                             ActivationFunction( - 2));
 
   delta = HadamardProduct(
       Mul(matrix::Transpose(
               network_layers_[network_layers_.size() - 1].GetWeights()),
           delta),
-      sp);
-  //
-  //  delta = HadamardProduct(delta, sp);
+      kSp);
 
-  const matrix::Matrix<double> hidden_layer_bias_error = delta;
+  const matrix::Matrix<double> kHiddenLayerBiasError = delta;
 
-  const matrix::Matrix<double> hidden_layer_weight_gradient =
-      Mul(delta, Transpose(input_values));
+  const matrix::Matrix<double> kHiddenLayerWeightGradient =
+      Mul(delta, Transpose(input_values_));
 
   // -------- apply changes -------
   network_layers_[network_layers_.size() - 1].GetWeights().Sub(
@@ -153,11 +120,11 @@ double NeuralNet::PropagateBackwards(const std::vector<double> &expected,
           Mul(kNablaB, learning_rate));
 
   network_layers_[network_layers_.size() - 2].GetWeights().Sub(
-      matrix::Mul(hidden_layer_weight_gradient, learning_rate));
+      matrix::Mul(kHiddenLayerWeightGradient, learning_rate));
 
   network_layers_[network_layers_.size() - 2].GetBiases() =
       Sub(network_layers_[network_layers_.size() - 2].GetBiases(),
-          Mul(hidden_layer_bias_error, learning_rate));
+          Mul(kHiddenLayerBiasError, learning_rate));
 
   double sum = 0.0;
 

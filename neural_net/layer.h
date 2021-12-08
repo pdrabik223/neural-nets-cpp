@@ -48,23 +48,26 @@ public:
   size_t GetPreviousLayerHeight() const;
   matrix::Matrix<double> &GetWeights();
   const matrix::Matrix<double> &GetActivatedNodes() const;
-
+  ActivationFunction GetActivationFunction() const;
   void SetWeights(const matrix::Matrix<double> &weights);
   void SetBiases(matrix::Matrix<double> &biases);
 
   static double Relu(double val);
 
-  static double Sigmoid(double val) { return (1.0 - 1.0 / (1.0 + exp(val))); }
+  static double Sigmoid(double val);
 
-  static double SigmoidDerivative(double val) {
-    return Sigmoid(val) * (1 - Sigmoid(val));
-  }
-  static double ReluDerivative(double val) {
-    if (val <= 0)
-      return 0.0;
-    else
-      return 1.0;
-  }
+  static double SigmoidDerivative(double val);
+  static double ReluDerivative(double val);
+
+  static matrix::Matrix<double>
+  ApplyDerivative(const matrix::Matrix<double> &vector_a,
+                  ActivationFunction activation_function);
+
+  static matrix::Matrix<double>
+  ApplySigmoidDerivative(const matrix::Matrix<double> &vector_a);
+
+  static matrix::Matrix<double>
+  ApplyReluDerivative(const matrix::Matrix<double> &vector_a);
 
   matrix::Matrix<double> &
   ApplyActivationFunction(const matrix::Matrix<double> &target_vector,

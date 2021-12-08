@@ -51,7 +51,6 @@ matrix::Matrix<double> &
 Layer::ApplyActivationFunction(const matrix::Matrix<double> &target_vector,
                                ActivationFunction function_type) {
 
-
   if (!target_vector.IsVector())
     throw "incorrect shape";
 
@@ -80,4 +79,57 @@ double Layer::Relu(double val) {
 
 const matrix::Matrix<double> &Layer::GetActivatedNodes() const {
   return activated_nodes_;
+}
+matrix::Matrix<double>
+Layer::ApplyReluDerivative(const matrix::Matrix<double> &vector_a) {
+
+  if (!vector_a.IsVector())
+    throw "incorrect vector shape";
+
+  matrix::Matrix<double> solution(vector_a.GetHeight(), 1);
+
+  for (int i = 0; i < vector_a.GetHeight(); i++)
+    for (int j = 0; j < vector_a.GetWidth(); j++)
+      solution.Get(i, j) = (Layer::ReluDerivative(vector_a.Get(i, j)));
+
+  return solution;
+}
+matrix::Matrix<double>
+Layer::ApplySigmoidDerivative(const matrix::Matrix<double> &vector_a) {
+
+  if (!vector_a.IsVector())
+    throw "incorrect vector shape";
+
+  matrix::Matrix<double> solution(vector_a.GetHeight(), 1);
+
+  for (int i = 0; i < vector_a.GetHeight(); i++)
+    for (int j = 0; j < vector_a.GetWidth(); j++)
+      solution.Get(i, j) = (Layer::SigmoidDerivative(vector_a.Get(i, j)));
+
+  return solution;
+}
+matrix::Matrix<double>
+Layer::ApplyDerivative(const matrix::Matrix<double> &vector_a,
+                       ActivationFunction activation_function) {
+  switch (activation_function) {
+
+  case ActivationFunction::RELU:
+    return ApplyReluDerivative(vector_a);
+
+  case ActivationFunction::SIGMOID:
+    return ApplySigmoidDerivative(vector_a);
+  }
+}
+double Layer::ReluDerivative(double val) {
+  if (val <= 0)
+    return 0.0;
+  else
+    return 1.0;
+}
+double Layer::SigmoidDerivative(double val) {
+  return Sigmoid(val) * (1 - Sigmoid(val));
+}
+double Layer::Sigmoid(double val) { return (1.0 - 1.0 / (1.0 + exp(val))); }
+ActivationFunction Layer::GetActivationFunction() const {
+  return activation_function_;
 }

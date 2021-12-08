@@ -17,7 +17,7 @@ double LinearFunction(double x, double y) { return x + y; }
 
 int main(int argc, char **argv) {
   TApplication app("app", &argc, argv);
-  auto mg = new TGraph();
+  auto mg = TGraph();
 
   NeuralNet test(2, {2}, 1);
   test.FillRandom();
@@ -37,18 +37,18 @@ int main(int argc, char **argv) {
     double error_sum = test.PropagateBackwards(target, learning_rate);
 
     //    std::cout << "i: " << i << "  error: " << error_sum << std::endl;
-    mg->SetPoint(i, i, abs(error_sum));
+    mg.SetPoint(i, i, abs(error_sum));
   }
 
-  auto *c = new TCanvas("canvas", "NeuralNets", 10, 10, 800, 600);
-  mg->SetTitle("Global_Net_Error;Iterations;Error");
-  mg->SetMarkerStyle(22);
-  mg->SetFillStyle(0);
-  mg->SetMarkerSize(0);
-  mg->SetDrawOption("LP");
-  mg->SetLineColor(4);
-  mg->SetLineWidth(2);
-  mg->Draw();
+  auto c = new TCanvas("canvas", "NeuralNets", 10, 10, 800, 600);
+  mg.SetTitle("Global_Net_Error;Iterations;Error");
+  mg.SetMarkerStyle(22);
+  mg.SetFillStyle(0);
+  mg.SetMarkerSize(0);
+  mg.SetDrawOption("LP");
+  mg.SetLineColor(4);
+  mg.SetLineWidth(2);
+  mg.Draw();
 
   TRootCanvas *rc = (TRootCanvas *)c->GetCanvasImp();
   app.Run();
