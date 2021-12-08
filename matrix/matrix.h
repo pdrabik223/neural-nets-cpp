@@ -62,10 +62,18 @@ public:
   };
 
   /// access specific value by reference
+  /// !if matrix an not be represented as a vector the function will result in
+  /// error \param i the 'height' part \return targeted value
+  T& Get(PyId i)  {
+    if(!IsVector())
+      throw "only vectors can be accessed via this handle";
+    return data_[ToInt(i.ConvertId(shape_.height), unsigned(0))]; };
+
+  /// access specific value by reference
   /// \param i the 'height' part
   /// \param j the 'width' part
   /// \return targeted value
-//  T &Get(size_t i, size_t j) { return data_[ToInt(i, j)]; };
+  //  T &Get(size_t i, size_t j) { return data_[ToInt(i, j)]; };
 
   /// overrides every value in matrix and changes it to given val
   /// \param val the new state of every val in matrix

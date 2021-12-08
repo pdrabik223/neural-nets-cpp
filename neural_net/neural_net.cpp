@@ -91,9 +91,9 @@ double NeuralNet::PropagateBackwards(const std::vector<double> &expected,
   matrix::Matrix<double> delta = HadamardProduct(
       CostFunction(expected),
       Layer::ApplyDerivative(Nodes(-1), ActivationFunction(-2)));
-  nabla_b.Get(-1, 0) = delta;
+  nabla_b.Get(-1) = delta;
 
-  nabla_w.Get(-1, 0) = Mul(delta, Transpose(Activations(-2)));
+  nabla_w.Get(-1) = Mul(delta, Transpose(Activations(-2)));
 
   // hidden layers
   const matrix::Matrix<double> kSp =
@@ -104,24 +104,27 @@ double NeuralNet::PropagateBackwards(const std::vector<double> &expected,
               network_layers_[network_layers_.size() - 1].GetWeights()),
           delta),
       kSp);
-  nabla_b.Get(-2, 0) = delta;
+  nabla_b.Get(-2) = delta;
 
-  nabla_w.Get(-2, 0) = Mul(delta, Transpose(input_values_));
+  nabla_w.Get(-2) = Mul(delta, Transpose(input_values_));
 
   // -------- apply changes -------
-  network_layers_[network_layers_.size() - 1].GetWeights().Sub(
-      matrix::Mul(nabla_w.Get(-1, 0), learning_rate));
 
-  network_layers_[network_layers_.size() - 1].GetBiases().Sub(
-      Mul(nabla_b.Get(-1, 0), learning_rate));
+  for (int i = 1; i <= network_layers_.size(); i++) {
 
-  network_layers_[network_layers_.size() - 2].GetWeights().Sub(
-      matrix::Mul(nabla_w.Get(-2, 0), learning_rate));
+  network_layers_[network_layers_.size() - i].GetWeights().Sub(
+      matrix::Mul(nabla_w.Get(-i), learning_rate));
 
-  network_layers_[network_layers_.size() - 2].GetBiases().Sub(
-      Mul(nabla_b.Get(-2, 0), learning_rate));
+  network_layers_[network_layers_.size() - i].GetBiases().Sub(
+      Mul(nabla_b.Get(-i), learning_rate));
+}
+//  network_layers_[network_layers_.size() - 2].GetWeights().Sub(
+//      matrix::Mul(nabla_w.Get(-2), learning_rate));
+//
+//  network_layers_[network_layers_.size() - 2].GetBiases().Sub(
+//      Mul(nabla_b.Get(-2), learning_rate));
 
-  double sum = 0.0;
+double sum = 0.0;
 
   auto matrix_error = CostFunction(expected);
   for (int i = 0; i < matrix_error.GetHeight(); i++)
