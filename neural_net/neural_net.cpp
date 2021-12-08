@@ -96,35 +96,38 @@ double NeuralNet::PropagateBackwards(const std::vector<double> &expected,
   nabla_w.Get(-1) = Mul(delta, Transpose(Activations(-2)));
 
   // hidden layers
-  const matrix::Matrix<double> kSp =
-      Layer::ApplyDerivative(Nodes(-2), ActivationFunction(-2));
 
-  delta = HadamardProduct(
-      Mul(matrix::Transpose(
-              network_layers_[network_layers_.size() - 1].GetWeights()),
-          delta),
-      kSp);
-  nabla_b.Get(-2) = delta;
+  for (int i = 2; i <= network_layers_.size(); i++) {
 
-  nabla_w.Get(-2) = Mul(delta, Transpose(input_values_));
+    const matrix::Matrix<double> kSp =
+        Layer::ApplyDerivative(Nodes(-i), ActivationFunction(-i));
 
+    delta = HadamardProduct(
+        Mul(matrix::Transpose(
+                network_layers_[network_layers_.size() - i + 1].GetWeights()),
+            delta),
+        kSp);
+    nabla_b.Get(-i) = delta;
+
+    nabla_w.Get(-i) = Mul(delta, Transpose(input_values_));
+  }
   // -------- apply changes -------
 
   for (int i = 1; i <= network_layers_.size(); i++) {
 
-  network_layers_[network_layers_.size() - i].GetWeights().Sub(
-      matrix::Mul(nabla_w.Get(-i), learning_rate));
+    network_layers_[network_layers_.size() - i].GetWeights().Sub(
+        matrix::Mul(nabla_w.Get(-i), learning_rate));
 
-  network_layers_[network_layers_.size() - i].GetBiases().Sub(
-      Mul(nabla_b.Get(-i), learning_rate));
-}
-//  network_layers_[network_layers_.size() - 2].GetWeights().Sub(
-//      matrix::Mul(nabla_w.Get(-2), learning_rate));
-//
-//  network_layers_[network_layers_.size() - 2].GetBiases().Sub(
-//      Mul(nabla_b.Get(-2), learning_rate));
+    network_layers_[network_layers_.size() - i].GetBiases().Sub(
+        Mul(nabla_b.Get(-i), learning_rate));
+  }
+  //  network_layers_[network_layers_.size() - 2].GetWeights().Sub(
+  //      matrix::Mul(nabla_w.Get(-2), learning_rate));
+  //
+  //  network_layers_[network_layers_.size() - 2].GetBiases().Sub(
+  //      Mul(nabla_b.Get(-2), learning_rate));
 
-double sum = 0.0;
+  double sum = 0.0;
 
   auto matrix_error = CostFunction(expected);
   for (int i = 0; i < matrix_error.GetHeight(); i++)
