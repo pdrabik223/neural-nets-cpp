@@ -82,49 +82,47 @@ void NeuralNet::FillRandom() {
 double NeuralNet::PropagateBackwards(const std::vector<double> &expected,
                                      double learning_rate) {
 
+  matrix::Matrix<matrix::Matrix<double>> nabla_b(network_layers_.size(), 1);
+  matrix::Matrix<matrix::Matrix<double>> nabla_w(network_layers_.size(), 1);
+
   matrix::Matrix<double> expected_matrix(matrix::ConvertToMatrix(expected));
 
   // output layer
   matrix::Matrix<double> delta = HadamardProduct(
       CostFunction(expected),
-      Layer::ApplyDerivative(Nodes( - 1),
-                             ActivationFunction( - 2)));
+      Layer::ApplyDerivative(Nodes(-1), ActivationFunction(-2)));
+  nabla_b.Get(-1, 0) = delta;
 
-  const matrix::Matrix<double> kNablaB = delta;
-
-  const matrix::Matrix<double> kNablaW =
-      Mul(delta, Transpose(Activations( - 2)));
+  nabla_w.Get(-1, 0) = Mul(delta, Transpose(Activations(-2)));
 
   // hidden layers
   const matrix::Matrix<double> kSp =
-      Layer::ApplyDerivative(Nodes( - 2),
-                             ActivationFunction( - 2));
+      Layer::ApplyDerivative(Nodes(-2), ActivationFunction(-2));
 
   delta = HadamardProduct(
       Mul(matrix::Transpose(
               network_layers_[network_layers_.size() - 1].GetWeights()),
           delta),
       kSp);
+  nabla_b.Get(-2, 0) = delta;
 
-  const matrix::Matrix<double> kHiddenLayerBiasError = delta;
+  nabla_w.Get(-2, 0) = Mul(delta, Transpose(input_values_));
 
-  const matrix::Matrix<double> kHiddenLayerWeightGradient =
-      Mul(delta, Transpose(input_values_));
 
   // -------- apply changes -------
   network_layers_[network_layers_.size() - 1].GetWeights().Sub(
-      matrix::Mul(kNablaW, learning_rate));
+      matrix::Mul(nabla_w.Get(-1, 0), learning_rate));
 
   network_layers_[network_layers_.size() - 1].GetBiases() =
       Sub(network_layers_[network_layers_.size() - 1].GetBiases(),
-          Mul(kNablaB, learning_rate));
+          Mul(nabla_b.Get(-1, 0), learning_rate));
 
   network_layers_[network_layers_.size() - 2].GetWeights().Sub(
-      matrix::Mul(kHiddenLayerWeightGradient, learning_rate));
+      matrix::Mul(nabla_w.Get(-2, 0), learning_rate));
 
   network_layers_[network_layers_.size() - 2].GetBiases() =
       Sub(network_layers_[network_layers_.size() - 2].GetBiases(),
-          Mul(kHiddenLayerBiasError, learning_rate));
+          Mul(nabla_b.Get(-2, 0), learning_rate));
 
   double sum = 0.0;
 
@@ -143,8 +141,7 @@ NeuralNet::CostFunction(const std::vector<double> &expected_output) const {
 
   for (int i = 0; i < error.GetHeight(); i++)
     for (int j = 0; j < error.GetWidth(); j++)
-      error.Get(i, j) =
-          Activations( - 1).Get(i, j) - expected_output[i];
+      error.Get(i, j) = Activations(-1).Get(i, j) - expected_output[i];
 
   return error;
 }

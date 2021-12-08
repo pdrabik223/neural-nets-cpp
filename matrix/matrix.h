@@ -7,6 +7,19 @@
 #include <cassert>
 #include <string>
 #include <vector>
+
+struct PyId {
+  PyId(int position) : id(position) {}
+
+  int id;
+  unsigned ConvertId(unsigned size) const {
+    if (id < 0)
+      return size + id;
+    else
+      return id;
+  };
+};
+
 namespace matrix {
 
 struct Shape {
@@ -23,7 +36,7 @@ struct Shape {
 template <class T> class Matrix {
 
 public:
-  Matrix(){};
+  Matrix() : shape_(0, 0) { data_ = {}; };
   Matrix(size_t height, size_t width);
   explicit Matrix(const std::vector<std::vector<T>> &data);
 
@@ -36,19 +49,23 @@ public:
   /// \param i the 'height' part
   /// \param j the 'width' part
   /// \return targeted value
-  T &Get(int i, int j) { return data_[ToInt(i, j)]; };
+  T &Get(PyId i, PyId j) {
+    return data_[ToInt(i.ConvertId(shape_.height), j.ConvertId(shape_.width))];
+  };
 
   /// access specific value by reference
   /// \param i the 'height' part
   /// \param j the 'width' part
   /// \return targeted value
-  T Get(int i, int j) const { return data_[ToInt(i, j)]; };
+  T Get(PyId i, PyId j) const {
+    return data_[ToInt(i.ConvertId(shape_.height), j.ConvertId(shape_.width))];
+  };
 
   /// access specific value by reference
   /// \param i the 'height' part
   /// \param j the 'width' part
   /// \return targeted value
-  T &Get(size_t i, size_t j) { return data_[ToInt(i, j)]; };
+//  T &Get(size_t i, size_t j) { return data_[ToInt(i, j)]; };
 
   /// overrides every value in matrix and changes it to given val
   /// \param val the new state of every val in matrix
@@ -124,7 +141,7 @@ Matrix<T>::Matrix(size_t height, size_t width) : shape_(height, width) {
   data_.reserve(width * height);
   for (int i = 0; i < GetHeight(); i++)
     for (int j = 0; j < GetWidth(); j++)
-      data_.push_back(T(0));
+      data_.push_back(T());
 }
 template <class T>
 Matrix<T>::Matrix(const std::vector<std::vector<T>> &data)

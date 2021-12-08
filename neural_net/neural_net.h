@@ -8,17 +8,6 @@
 #include "layer.h"
 #include <string>
 
-struct PyId {
-  PyId(int position) : id(position) {}
-
-  int id;
-  unsigned ConvertId(unsigned size) const {
-    if (id < 0)
-      return size + id;
-    else
-      return id;
-  };
-};
 
 class NeuralNet {
 
