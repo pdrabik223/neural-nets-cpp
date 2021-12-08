@@ -108,21 +108,18 @@ double NeuralNet::PropagateBackwards(const std::vector<double> &expected,
 
   nabla_w.Get(-2, 0) = Mul(delta, Transpose(input_values_));
 
-
   // -------- apply changes -------
   network_layers_[network_layers_.size() - 1].GetWeights().Sub(
       matrix::Mul(nabla_w.Get(-1, 0), learning_rate));
 
-  network_layers_[network_layers_.size() - 1].GetBiases() =
-      Sub(network_layers_[network_layers_.size() - 1].GetBiases(),
-          Mul(nabla_b.Get(-1, 0), learning_rate));
+  network_layers_[network_layers_.size() - 1].GetBiases().Sub(
+      Mul(nabla_b.Get(-1, 0), learning_rate));
 
   network_layers_[network_layers_.size() - 2].GetWeights().Sub(
       matrix::Mul(nabla_w.Get(-2, 0), learning_rate));
 
-  network_layers_[network_layers_.size() - 2].GetBiases() =
-      Sub(network_layers_[network_layers_.size() - 2].GetBiases(),
-          Mul(nabla_b.Get(-2, 0), learning_rate));
+  network_layers_[network_layers_.size() - 2].GetBiases().Sub(
+      Mul(nabla_b.Get(-2, 0), learning_rate));
 
   double sum = 0.0;
 
