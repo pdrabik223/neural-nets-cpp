@@ -8,7 +8,6 @@
 #include "layer.h"
 #include <string>
 
-
 class NeuralNet {
 
 public:
@@ -41,14 +40,29 @@ public:
   CostFunction(const std::vector<double> &expected_output) const;
 
   const matrix::Matrix<double> &Activations(PyId id) const {
+    if (id.id == -network_layers_.size() - 1)
+      return input_values_;
     return network_layers_[id.ConvertId(network_layers_.size())]
         .GetActivatedNodes();
   }
+
   const matrix::Matrix<double> &Nodes(PyId id) const {
+
+    if (id.id == -network_layers_.size() - 1)
+      return input_values_;
     return network_layers_[id.ConvertId(network_layers_.size())].GetNodes();
+  }
+  matrix::Matrix<double> &Weights(PyId id) {
+
+    return network_layers_[id.ConvertId(network_layers_.size())].GetWeights();
+  }
+  matrix::Matrix<double> &Biases(PyId id) {
+
+    return network_layers_[id.ConvertId(network_layers_.size())].GetBiases();
   }
 
   const ActivationFunction &ActivationFunction(PyId id) const {
+
     return network_layers_[id.ConvertId(network_layers_.size())]
         .GetActivationFunction();
   }

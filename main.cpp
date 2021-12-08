@@ -19,7 +19,7 @@ int main(int argc, char **argv) {
   TApplication app("app", &argc, argv);
   auto mg = TGraph();
 
-  NeuralNet test(2, {2}, 1);
+  NeuralNet test(2, {4}, 1);
   test.FillRandom();
 
   double learning_rate = 0.01;

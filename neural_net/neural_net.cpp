@@ -97,35 +97,25 @@ double NeuralNet::PropagateBackwards(const std::vector<double> &expected,
 
   // hidden layers
 
-  for (int i = 2; i <= network_layers_.size(); i++) {
+  for (int l = 2; l <= network_layers_.size(); l++) {
 
     const matrix::Matrix<double> kSp =
-        Layer::ApplyDerivative(Nodes(-i), ActivationFunction(-i));
+        Layer::ApplyDerivative(Nodes(-l), ActivationFunction(-l));
 
-    delta = HadamardProduct(
-        Mul(matrix::Transpose(
-                network_layers_[network_layers_.size() - i + 1].GetWeights()),
-            delta),
-        kSp);
-    nabla_b.Get(-i) = delta;
+    delta = HadamardProduct(Mul(matrix::Transpose(Weights(1 - l)), delta), kSp);
 
-    nabla_w.Get(-i) = Mul(delta, Transpose(input_values_));
+    nabla_b.Get(-l) = delta;
+
+    nabla_w.Get(-l) = Mul(delta, matrix::Transpose(Activations(-1 - l)));
   }
   // -------- apply changes -------
 
-  for (int i = 1; i <= network_layers_.size(); i++) {
+  for (int l = 1; l <= network_layers_.size(); l++) {
 
-    network_layers_[network_layers_.size() - i].GetWeights().Sub(
-        matrix::Mul(nabla_w.Get(-i), learning_rate));
+    Weights(-l).Sub(Mul(nabla_w.Get(-l), learning_rate));
 
-    network_layers_[network_layers_.size() - i].GetBiases().Sub(
-        Mul(nabla_b.Get(-i), learning_rate));
+    Biases(-l).Sub(Mul(nabla_b.Get(-l), learning_rate));
   }
-  //  network_layers_[network_layers_.size() - 2].GetWeights().Sub(
-  //      matrix::Mul(nabla_w.Get(-2), learning_rate));
-  //
-  //  network_layers_[network_layers_.size() - 2].GetBiases().Sub(
-  //      Mul(nabla_b.Get(-2), learning_rate));
 
   double sum = 0.0;
 

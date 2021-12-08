@@ -48,7 +48,7 @@ public:
   size_t GetPreviousLayerHeight() const;
   matrix::Matrix<double> &GetWeights();
   const matrix::Matrix<double> &GetActivatedNodes() const;
-  ActivationFunction GetActivationFunction() const;
+  const ActivationFunction& GetActivationFunction() const;
   void SetWeights(const matrix::Matrix<double> &weights);
   void SetBiases(matrix::Matrix<double> &biases);
 
