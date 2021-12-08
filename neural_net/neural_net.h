@@ -43,6 +43,9 @@ public:
   CostFunction(const std::vector<double> &expected_output) const;
 
   const matrix::Matrix<double> &Activations(unsigned layer_id) const {
+    return network_layers_[layer_id].GetActivatedNodes();
+  }
+  const matrix::Matrix<double> &Nodes(unsigned layer_id) const {
     return network_layers_[layer_id].GetNodes();
   }
 
@@ -53,6 +56,8 @@ public:
 private:
   static matrix::Matrix<double>
   ApplySigmoidDerivative(const matrix::Matrix<double> &vector_a);
+  matrix::Matrix<double>
+  ApplyReluDerivative(const matrix::Matrix<double> &vector_a);
 
 protected:
   size_t input_layer_size_;
@@ -60,11 +65,11 @@ protected:
   matrix::Matrix<double> input_values;
   std::vector<Layer> network_layers_;
 };
-static std::string ToString(NormalizingFunction func) {
+static std::string ToString(ActivationFunction func) {
   switch (func) {
-  case NormalizingFunction::RELU:
+  case ActivationFunction::RELU:
     return "Relu";
-  case NormalizingFunction::SIGMOID:
+  case ActivationFunction::SIGMOID:
     return "Sigmoid";
   }
 }

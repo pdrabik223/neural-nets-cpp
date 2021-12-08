@@ -9,28 +9,26 @@
 #include <vector>
 namespace matrix {
 
-struct Shape
-{
+struct Shape {
   Shape(size_t height, size_t width);
   Shape() : width(0), height(0){};
 
   size_t height;
   size_t width;
 
-  bool operator==(const Shape& rhs) const;
-  bool operator!=(const Shape& rhs) const;
+  bool operator==(const Shape &rhs) const;
+  bool operator!=(const Shape &rhs) const;
 };
 
-template<class T>
-class Matrix {
+template <class T> class Matrix {
 
- public:
+public:
   Matrix(){};
   Matrix(size_t height, size_t width);
-  explicit Matrix(const std::vector<std::vector<T>>& data);
+  explicit Matrix(const std::vector<std::vector<T>> &data);
 
-  Matrix(const Matrix&) = default;
-  Matrix& operator=(const Matrix&) = default;
+  Matrix(const Matrix &) = default;
+  Matrix &operator=(const Matrix &) = default;
 
   void Transpose();
 
@@ -38,7 +36,7 @@ class Matrix {
   /// \param i the 'height' part
   /// \param j the 'width' part
   /// \return targeted value
-  T& Get(int i, int j) { return data_[ToInt(i, j)]; };
+  T &Get(int i, int j) { return data_[ToInt(i, j)]; };
 
   /// access specific value by reference
   /// \param i the 'height' part
@@ -50,12 +48,13 @@ class Matrix {
   /// \param i the 'height' part
   /// \param j the 'width' part
   /// \return targeted value
-  T& Get(size_t i, size_t j) { return data_[ToInt(i, j)]; };
+  T &Get(size_t i, size_t j) { return data_[ToInt(i, j)]; };
 
   /// overrides every value in matrix and changes it to given val
   /// \param val the new state of every val in matrix
   void Fill(T val) {
-	for (auto& number : data_) number = val;
+    for (auto &number : data_)
+      number = val;
   };
 
   /// overrides every value in matrix and changes it to 0
@@ -63,28 +62,27 @@ class Matrix {
 
   size_t GetWidth() const;
   size_t GetHeight() const;
+  const Shape &GetShape() const;
 
-  const std::vector<T>& GetData() const;
+  const std::vector<T> &GetData() const;
 
-  void Add(const T& other);
-  void Add(const Matrix<T>& other);
-  void Add(const std::vector<T>& other);
+  void Add(const T &other);
+  void Add(const Matrix<T> &other);
 
-  void Sub(const Matrix<T>& other);
+  void Sub(const Matrix<T> &other);
 
-  void Mul(const T& other);
-  void Mul(const Matrix<T>& other);
-  void Mul(const std::vector<T>& other);
+  void Mul(const T &other);
+  void Mul(const Matrix<T> &other);
 
-  bool operator==(const Matrix& rhs) const;
-  bool operator!=(const Matrix& rhs) const;
+  bool operator==(const Matrix &rhs) const;
+  bool operator!=(const Matrix &rhs) const;
 
   bool IsVector() const { return shape_.width == 1; }
 
   //  template <class T>
-  std::vector<T>& RawData() { return data_; }
+  std::vector<T> &RawData() { return data_; }
 
- private:
+private:
   /// convert position in 2d space, to its 1D notation
   /// \param i the 'height' part
   /// \param j the 'width' part
@@ -97,231 +95,251 @@ class Matrix {
   /// \return 1D conversion of given point
   size_t ToInt(size_t i, size_t j) const;
 
- protected:
+protected:
   /// point a(0,0) is in left top corner, just like normal matrix
   /// width a.k.a. j part of a(i,j) symbol
   Shape shape_;
   std::vector<T> data_;
 };
 
-template<class T>
-size_t Matrix<T>::ToInt(int i, int j) const {
+template <class T> size_t Matrix<T>::ToInt(int i, int j) const {
   assert(i >= 0 && j >= 0);
   assert(i < GetHeight() && j < GetWidth());
   return i * GetWidth() + j;
 }
 
-template<class T>
-size_t Matrix<T>::ToInt(size_t i, size_t j) const {
+template <class T> size_t Matrix<T>::ToInt(size_t i, size_t j) const {
   assert(i < GetHeight() && j < GetWidth());
   return i * GetWidth() + j;
 }
-template<class T>
-size_t Matrix<T>::GetWidth() const {
-  return shape_.width;
-}
-template<class T>
-size_t Matrix<T>::GetHeight() const {
-  return shape_.height;
-}
+template <class T> size_t Matrix<T>::GetWidth() const { return shape_.width; }
+template <class T> size_t Matrix<T>::GetHeight() const { return shape_.height; }
 
-template<class T>
-const std::vector<T>& Matrix<T>::GetData() const {
+template <class T> const std::vector<T> &Matrix<T>::GetData() const {
   return data_;
 }
 
-template<class T>
+template <class T>
 Matrix<T>::Matrix(size_t height, size_t width) : shape_(height, width) {
   data_.reserve(width * height);
   for (int i = 0; i < GetHeight(); i++)
-	for (int j = 0; j < GetWidth(); j++) data_.push_back(T(0));
+    for (int j = 0; j < GetWidth(); j++)
+      data_.push_back(T(0));
 }
-template<class T>
-Matrix<T>::Matrix(const std::vector<std::vector<T>>& data)
-	: shape_(data.size(), data.begin()->size()) {
+template <class T>
+Matrix<T>::Matrix(const std::vector<std::vector<T>> &data)
+    : shape_(data.size(), data.begin()->size()) {
   shape_.width = data.begin()->size();
 
-  for (auto& i : data)
-	if (i.size() != GetWidth())
-	  throw "passed data matrix must have correctly defined size";
+  for (auto &i : data)
+    if (i.size() != GetWidth())
+      throw "passed data matrix must have correctly defined size";
 
   shape_.height = data.size();
 
   data_.reserve(GetWidth() * GetHeight());
 
   for (int i = 0; i < GetHeight(); i++)
-	for (int j = 0; j < GetWidth(); j++) data_.push_back(data[i][j]);
+    for (int j = 0; j < GetWidth(); j++)
+      data_.push_back(data[i][j]);
 }
 
-template<class T>
-static Matrix<T> Add(const Matrix<T>& matrix_a, const T& value) {
+template <class T>
+static Matrix<T> Add(const Matrix<T> &matrix_a, const T &value) {
   Matrix<T> addition(matrix_a);
   for (int i = 0; i < matrix_a.GetHeight(); i++)
-	for (int j = 0; j < matrix_a.GetWidth(); j++) addition.Get(i, j) += value;
+    for (int j = 0; j < matrix_a.GetWidth(); j++)
+      addition.Get(i, j) += value;
   return addition;
 }
 
-template<class T>
-void Matrix<T>::Add(const T& other) {
+template <class T> void Matrix<T>::Add(const T &other) {
   for (int i = 0; i < GetHeight(); i++)
-	for (int j = 0; j < GetWidth(); j++) Get(i, j) += other;
+    for (int j = 0; j < GetWidth(); j++)
+      Get(i, j) += other;
 }
 
-template<class T>
-static Matrix<T> Add(const Matrix<T>& matrix_a, const Matrix<T>& matrix_b) {
+template <class T>
+static Matrix<T> Add(const Matrix<T> &matrix_a, const Matrix<T> &matrix_b) {
   if (matrix_a.GetWidth() != matrix_b.GetWidth())
-	throw "incorrect matrix shape";
+    throw "incorrect matrix shape";
 
   if (matrix_a.GetHeight() != matrix_b.GetHeight())
-	throw "incorrect matrix shape";
+    throw "incorrect matrix shape";
   Matrix<T> addition(matrix_a);
   for (int i = 0; i < matrix_a.GetHeight(); i++)
-	for (int j = 0; j < matrix_a.GetWidth(); j++)
-	  addition.Get(i, j) += matrix_b.Get(i, j);
+    for (int j = 0; j < matrix_a.GetWidth(); j++)
+      addition.Get(i, j) += matrix_b.Get(i, j);
   return addition;
 }
-template<class T>
-static Matrix<T> Sub(const Matrix<T>& matrix_a, const Matrix<T>& matrix_b) {
+template <class T>
+static Matrix<T> Sub(const Matrix<T> &matrix_a, const Matrix<T> &matrix_b) {
 
   if (matrix_a.GetWidth() != matrix_b.GetWidth())
-	throw "incorrect matrix shape";
+    throw "incorrect matrix shape";
 
   if (matrix_a.GetHeight() != matrix_b.GetHeight())
-	throw "incorrect matrix shape";
+    throw "incorrect matrix shape";
 
   Matrix<T> addition(matrix_a);
   for (int i = 0; i < matrix_a.GetHeight(); i++)
-	for (int j = 0; j < matrix_a.GetWidth(); j++)
-	  addition.Get(i, j) -= matrix_b.Get(i, j);
+    for (int j = 0; j < matrix_a.GetWidth(); j++)
+      addition.Get(i, j) -= matrix_b.Get(i, j);
   return addition;
 }
 
-template<class T>
-void Matrix<T>::Add(const Matrix<T>& other) {
+template <class T> void Matrix<T>::Add(const Matrix<T> &other) {
   if (other.GetWidth() != GetWidth() || other.GetHeight() != GetHeight())
-	throw "incorrect vector shape";
+    throw "incorrect vector shape";
 
   for (int i = 0; i < GetHeight(); i++)
-	for (int j = 0; j < GetWidth(); j++) Get(i, j) += other.Get(i, j);
+    for (int j = 0; j < GetWidth(); j++)
+      Get(i, j) += other.Get(i, j);
 }
 
-template<class T>
-void Matrix<T>::Sub(const Matrix<T>& other) {
-  if (other.GetWidth() != GetWidth() || other.GetHeight() != GetHeight())
-	throw "incorrect matrix shape";
+template <class T> void Matrix<T>::Sub(const Matrix<T> &other) {
+  if (GetShape() != other.GetShape())
+    throw "incorrect matrix shape";
 
   for (int i = 0; i < GetHeight(); i++)
-	for (int j = 0; j < GetWidth(); j++) Get(i, j) -= other.Get(i, j);
+    for (int j = 0; j < GetWidth(); j++)
+      Get(i, j) -= other.Get(i, j);
 }
 
-template<class T>
-void Matrix<T>::Add(const std::vector<T>& other) {
-  if (GetWidth() != other.size() || GetHeight() != 1)
-	throw "incorrect vector shape";
-
-  for (int j = 0; j < GetWidth(); j++) Get(0, j) += other[j];
-}
-
-template<class T>
-void Matrix<T>::Mul(const T& other) {
+template <class T> void Matrix<T>::Mul(const T &other) {
   for (int i = 0; i < GetHeight(); i++)
-	for (int j = 0; j < GetWidth(); j++) Get(i, j) *= other;
+    for (int j = 0; j < GetWidth(); j++)
+      Get(i, j) *= other;
 }
 
-template<class T>
-void Matrix<T>::Mul(const Matrix<T>& other) {
-  if (GetWidth() != other.GetHeight()) throw "incorrect matrix sizes";
+template <class T> void Matrix<T>::Mul(const Matrix<T> &other) {
+  if (GetWidth() != other.GetHeight())
+    throw "incorrect matrix sizes";
 
   Matrix<T> multiplication(GetHeight(), other.GetWidth());
 
   for (int i = 0; i < multiplication.GetHeight(); i++)
-	for (int j = 0; j < multiplication.GetWidth(); j++) {
-	  for (int k = 0; k < GetWidth(); k++)
-		multiplication.Get(i, j) += Get(i, k) * other.Get(k, j);
-	}
+    for (int j = 0; j < multiplication.GetWidth(); j++) {
+      for (int k = 0; k < GetWidth(); k++)
+        multiplication.Get(i, j) += Get(i, k) * other.Get(k, j);
+    }
   *this = multiplication;
 }
 
-///            1,3
-/// 4,5,6    x 2,4  = 50,74
-///            6,7
-template<class T>
-static std::vector<T> Mul(const std::vector<T>& other,
-						  const Matrix<T>& matrix_a) {
-
-  // The number of columns in the first matrix should be equal to the number of
-  // rows in the second.
-  if (matrix_a.GetHeight() != other.size()) throw "incorrect matrix sizes";
-
-  std::vector<T> multiplication;
-  for (int i = 0; i < matrix_a.GetWidth(); i++) multiplication.push_back(T(0));
-
-  for (int j = 0; j < matrix_a.GetWidth(); j++)
-	for (int i = 0; i < matrix_a.GetHeight(); i++) {
-	  multiplication[j] += matrix_a.Get(i, j) * other[i];
-	}
-
-  return multiplication;
-}
-template<class T>
-static Matrix<T> Mul(const Matrix<T>& matrix_a, const Matrix<T>& matrix_b) {
+template <class T>
+static Matrix<T> Mul(const Matrix<T> &matrix_a, const Matrix<T> &matrix_b) {
   if (matrix_a.GetWidth() != matrix_b.GetHeight())
-	throw "incorrect matrix sizes";
+    throw "incorrect matrix sizes";
 
   Matrix<T> multiplication(matrix_a.GetHeight(), matrix_b.GetWidth());
 
   for (int i = 0; i < multiplication.GetHeight(); i++)
-	for (int j = 0; j < multiplication.GetWidth(); j++) {
-	  for (int k = 0; k < matrix_a.GetWidth(); k++)
-		multiplication.Get(i, j) += matrix_a.Get(i, k) * matrix_b.Get(k, j);
-	}
+    for (int j = 0; j < multiplication.GetWidth(); j++) {
+      for (int k = 0; k < matrix_a.GetWidth(); k++)
+        multiplication.Get(i, j) += matrix_a.Get(i, k) * matrix_b.Get(k, j);
+    }
   return multiplication;
 }
-template<class T>
-static Matrix<T> Mul(const Matrix<T>& matrix_a, const T& value) {
+template <class T>
+static Matrix<T> Mul(const Matrix<T> &matrix_a, const T &value) {
 
   Matrix<T> multiplication(matrix_a);
 
   for (int i = 0; i < multiplication.GetHeight(); i++)
-	for (int j = 0; j < multiplication.GetWidth(); j++) {
-	  multiplication.Get(i, j) *= value;
-	}
+    for (int j = 0; j < multiplication.GetWidth(); j++) {
+      multiplication.Get(i, j) *= value;
+    }
   return multiplication;
 }
 
-template<class T>
-void Matrix<T>::Mul(const std::vector<T>& other) {
-  if (GetHeight() != other.size()) throw "incorrect matrix sizes";
-
-  Matrix<T> multiplication(GetHeight(), 1);
-
-  for (int i = 0; i < multiplication.GetHeight(); i++)
-	for (int j = 0; j < multiplication.GetWidth(); j++) {
-	  for (int k = 0; k < GetWidth(); k++)
-		multiplication.Get(i, j) += Get(i, k) * other[i];
-	}
-  *this = multiplication;
+template <class T> bool Matrix<T>::operator==(const Matrix &rhs) const {
+  return GetWidth() == rhs.GetWidth() && GetHeight() == rhs.GetHeight() &&
+         data_ == rhs.data_;
 }
-
-template<class T>
-bool Matrix<T>::operator==(const Matrix& rhs) const {
-  return GetWidth() == rhs.GetWidth() && GetHeight() == rhs.GetHeight()
-		 && data_ == rhs.data_;
-}
-template<class T>
-bool Matrix<T>::operator!=(const Matrix& rhs) const {
+template <class T> bool Matrix<T>::operator!=(const Matrix &rhs) const {
   return !(rhs == *this);
 }
-template<class T>
-void Matrix<T>::Transpose() {
+template <class T> void Matrix<T>::Transpose() {
 
   auto copy(*this);
 
   std::swap(shape_.width, shape_.height);
   for (int i = 0; i < GetHeight(); i++)
-	for (int j = 0; j < GetWidth(); j++) { Get(i, j) = copy.Get(j, i); }
+    for (int j = 0; j < GetWidth(); j++) {
+      Get(i, j) = copy.Get(j, i);
+    }
+}
+template <class T> const Shape &Matrix<T>::GetShape() const { return shape_; }
+
+template <class T> matrix::Matrix<T> Transpose(const matrix::Matrix<T> &other) {
+  matrix::Matrix<T> transposed_matrix(other);
+  transposed_matrix.Transpose();
+  return transposed_matrix;
 }
 
-}// namespace matrix
+template <class T>
+static matrix::Matrix<T> HadamardProduct(const matrix::Matrix<T> &vector_a,
+                                         const matrix::Matrix<T> &vector_b) {
 
-#endif// NEURAL_NETS_CPP_MATRIX_MATRIX_H_
+  if (!vector_a.IsVector())
+    throw "incorrect vector shape";
+
+  if (!vector_b.IsVector())
+    throw "incorrect vector shape";
+
+  if (vector_a.GetHeight() != vector_b.GetHeight())
+    throw "incorrect vector dimensions";
+
+  matrix::Matrix<T> hadamard_product(vector_b.GetHeight(), vector_a.GetWidth());
+
+  for (int i = 0; i < hadamard_product.GetHeight(); i++)
+    for (int j = 0; j < hadamard_product.GetWidth(); j++)
+      hadamard_product.Get(i, j) = vector_a.Get(i, j) * vector_b.Get(i, j);
+
+  return hadamard_product;
+}
+
+template <class T>
+static matrix::Matrix<T> ConvertToMatrix(const std::vector<T> &vector) {
+
+  matrix::Matrix<T> matrix(vector.size(), 1);
+  matrix.RawData() = vector;
+
+  return matrix;
+}
+
+} // namespace matrix
+template <class T> static std::string ToString(const matrix::Matrix<T> &other) {
+  std::string output = "[[";
+
+  for (int i = 0; i < other.GetHeight(); i++) {
+    for (int j = 0; j < other.GetWidth(); j++) {
+
+      if (j < other.GetWidth() - 1)
+        output += std::to_string(other.Get(i, j)) + ", ";
+      else
+        output += std::to_string(other.Get(i, j)) + "]";
+    }
+    if (i < other.GetHeight() - 1)
+      output += ",\n[";
+  }
+  output += ']';
+
+  return output;
+}
+
+template <class T> static std::string ToString(const std::vector<T> &other) {
+  std::string output = "[";
+
+  for (int j = 0; j < other.size(); j++)
+    if (j < other.size() - 1)
+      output += std::to_string(other[j]) + ", ";
+    else
+      output += std::to_string(other[j]);
+
+  output += "]";
+
+  return output;
+}
+
+#endif // NEURAL_NETS_CPP_MATRIX_MATRIX_H_

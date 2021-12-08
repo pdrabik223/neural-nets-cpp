@@ -5,33 +5,33 @@
 #include "neural_net.h"
 
 NeuralNet::NeuralNet(size_t input_layer_size,
-					 const std::vector<size_t>& hidden_layer_sizes,
-					 size_t output_layer_size)
-	: input_layer_size_(input_layer_size),
-	  output_layer_size(output_layer_size) {
+                     const std::vector<size_t> &hidden_layer_sizes,
+                     size_t output_layer_size)
+    : input_layer_size_(input_layer_size),
+      output_layer_size(output_layer_size) {
 
   network_layers_.emplace_back(input_layer_size, hidden_layer_sizes[0],
-							   NormalizingFunction::SIGMOID);
+                               ActivationFunction::RELU);
 
   for (int i = 1; i < hidden_layer_sizes.size(); i++) {
-	network_layers_.emplace_back(hidden_layer_sizes[i - 1],
-								 hidden_layer_sizes[i],
-								 NormalizingFunction::SIGMOID);
+    network_layers_.emplace_back(hidden_layer_sizes[i - 1],
+                                 hidden_layer_sizes[i],
+                                 ActivationFunction::RELU);
   }
 
   network_layers_.emplace_back(hidden_layer_sizes.back(), output_layer_size,
-							   NormalizingFunction::SIGMOID);
+                               ActivationFunction::RELU);
 }
 NeuralNet::NeuralNet(size_t input_layer_size, size_t output_layer_size)
-	: input_layer_size_(input_layer_size),
-	  output_layer_size(output_layer_size) {
+    : input_layer_size_(input_layer_size),
+      output_layer_size(output_layer_size) {
 
   network_layers_.emplace_back(input_layer_size, output_layer_size,
-							   NormalizingFunction::SIGMOID);
+                               ActivationFunction::RELU);
 }
 
-matrix::Matrix<double> NeuralNet::FeedForward(
-	const std::vector<double>& input) {
+matrix::Matrix<double>
+NeuralNet::FeedForward(const std::vector<double> &input) {
 
   input_values = matrix::Matrix<double>(input.size(), 1);
   input_values.RawData() = input;
@@ -41,8 +41,8 @@ matrix::Matrix<double> NeuralNet::FeedForward(
 
   //  matrix::Matrix<double> input_matrix(input);
 
-  for (auto& network_layer : network_layers_)
-	buffer = network_layer.FeedForward(buffer);
+  for (auto &network_layer : network_layers_)
+    buffer = network_layer.FeedForward(buffer);
 
   return buffer;
 }
@@ -51,8 +51,8 @@ void NeuralNet::Show() {
   std::cout << "input layer size: " << input_layer_size_ << std::endl;
 
   for (int i = 0; i < network_layers_.size() - 1; i++) {
-	network_layers_[i].Show();
-	std::cout << std::endl;
+    network_layers_[i].Show();
+    std::cout << std::endl;
   }
 
   std::cout << "output layer ";
@@ -60,100 +60,124 @@ void NeuralNet::Show() {
   std::cout << std::endl;
 }
 void NeuralNet::FillBiases(double value) {
-  for (auto& hidden_layer : network_layers_) { hidden_layer.FillBiases(value); }
+  for (auto &hidden_layer : network_layers_) {
+    hidden_layer.FillBiases(value);
+  }
 }
 void NeuralNet::FillWeights(double value) {
-  for (auto& hidden_layer : network_layers_) {
-	hidden_layer.FillWeights(value);
+  for (auto &hidden_layer : network_layers_) {
+    hidden_layer.FillWeights(value);
   }
 }
 void NeuralNet::FillRandom() {
-  for (auto& hidden_layer : network_layers_) { hidden_layer.FillRandom(); }
+  for (auto &hidden_layer : network_layers_) {
+    hidden_layer.FillRandom();
+  }
 }
 
-matrix::Matrix<double> NeuralNet::ApplySigmoidDerivative(
-	const matrix::Matrix<double>& vector_a) {
+matrix::Matrix<double>
+NeuralNet::ApplySigmoidDerivative(const matrix::Matrix<double> &vector_a) {
 
-  if (!vector_a.IsVector()) throw "incorrect vector shape";
+  if (!vector_a.IsVector())
+    throw "incorrect vector shape";
 
   matrix::Matrix<double> solution(vector_a.GetHeight(), 1);
 
   for (int i = 0; i < vector_a.GetHeight(); i++)
-	for (int j = 0; j < vector_a.GetWidth(); j++)
-	  solution.Get(i, j) = (Layer::SigmoidDerivative(vector_a.Get(i, j)));
+    for (int j = 0; j < vector_a.GetWidth(); j++)
+      solution.Get(i, j) = (Layer::SigmoidDerivative(vector_a.Get(i, j)));
+
   return solution;
 }
 
-//There are only two hard things in Computer Science:
-// cache invalidation and naming things.
-//
-//                                     -- Phil Karlton
-double NeuralNet::PropagateBackwards(const std::vector<double>& expected,
-									 double learning_rate) {
+matrix::Matrix<double>
+NeuralNet::ApplyReluDerivative(const matrix::Matrix<double> &vector_a) {
 
-  matrix::Matrix<double> expected_matrix(expected.size(), 1);
-  expected_matrix.RawData() = expected;
+  if (!vector_a.IsVector())
+    throw "incorrect vector shape";
+
+  matrix::Matrix<double> solution(vector_a.GetHeight(), 1);
+
+  for (int i = 0; i < vector_a.GetHeight(); i++)
+    for (int j = 0; j < vector_a.GetWidth(); j++)
+      solution.Get(i, j) = (Layer::ReluDerivative(vector_a.Get(i, j)));
+
+  return solution;
+}
+
+// There are only two hard things in Computer Science:
+//  cache invalidation and naming things.
+//
+//                                      -- Phil Karlton
+double NeuralNet::PropagateBackwards(const std::vector<double> &expected,
+                                     double learning_rate) {
+
+  matrix::Matrix<double> expected_matrix(matrix::ConvertToMatrix(expected));
 
   // output layer
   matrix::Matrix<double> delta = HadamardProduct(
-	  CostFunction(expected),
-	  ApplySigmoidDerivative(Activations(network_layers_.size() - 1)));
+      CostFunction(expected),
+      ApplyReluDerivative(Nodes(
+          network_layers_.size() -
+          1))); // here mateusz suggest doing raw activations without sigmoid
 
   const matrix::Matrix<double> kNablaB = delta;
 
   const matrix::Matrix<double> kNablaW =
-	  Mul(delta, Transpose(Activations(network_layers_.size() - 2)));
+      Mul(delta, Transpose(Activations(network_layers_.size() - 2)));
 
   // hidden layers
-  const matrix::Matrix<double> sp =
-	  ApplySigmoidDerivative(Activations(network_layers_.size() - 2));
+  const matrix::Matrix<double> sp = ApplyReluDerivative(
+      Nodes(network_layers_.size() -
+            2)); // here mateusz suggest doing raw activations without sigmoid
 
   delta = HadamardProduct(
-	  Mul(network_layers_[network_layers_.size() - 2].GetWeights(),
-		  delta),
-	  sp);
+      Mul(matrix::Transpose(
+              network_layers_[network_layers_.size() - 1].GetWeights()),
+          delta),
+      sp);
   //
   //  delta = HadamardProduct(delta, sp);
 
   const matrix::Matrix<double> hidden_layer_bias_error = delta;
 
   const matrix::Matrix<double> hidden_layer_weight_gradient =
-	  Mul(delta, Transpose(input_values));
+      Mul(delta, Transpose(input_values));
 
   // -------- apply changes -------
   network_layers_[network_layers_.size() - 1].GetWeights().Sub(
-	  matrix::Mul(kNablaW, learning_rate));
+      matrix::Mul(kNablaW, learning_rate));
 
   network_layers_[network_layers_.size() - 1].GetBiases() =
-	  Sub(network_layers_[network_layers_.size() - 1].GetBiases(),
-		  Mul(kNablaB, learning_rate));
+      Sub(network_layers_[network_layers_.size() - 1].GetBiases(),
+          Mul(kNablaB, learning_rate));
 
   network_layers_[network_layers_.size() - 2].GetWeights().Sub(
-	  matrix::Mul(hidden_layer_weight_gradient, learning_rate));
+      matrix::Mul(hidden_layer_weight_gradient, learning_rate));
 
   network_layers_[network_layers_.size() - 2].GetBiases() =
-	  Sub(network_layers_[network_layers_.size() - 2].GetBiases(),
-		  Mul(hidden_layer_bias_error, learning_rate));
+      Sub(network_layers_[network_layers_.size() - 2].GetBiases(),
+          Mul(hidden_layer_bias_error, learning_rate));
 
   double sum = 0.0;
 
   auto matrix_error = CostFunction(expected);
   for (int i = 0; i < matrix_error.GetHeight(); i++)
-	for (int j = 0; j < matrix_error.GetWidth(); j++)
+    for (int j = 0; j < matrix_error.GetWidth(); j++)
 
-	  sum += matrix_error.Get(i, j);
+      sum += matrix_error.Get(i, j);
   return sum;
 }
 
-matrix::Matrix<double> NeuralNet::CostFunction(
-	const std::vector<double>& expected_output) const {
+matrix::Matrix<double>
+NeuralNet::CostFunction(const std::vector<double> &expected_output) const {
 
   matrix::Matrix<double> error(expected_output.size(), 1);
 
   for (int i = 0; i < error.GetHeight(); i++)
-	for (int j = 0; j < error.GetWidth(); j++)
-	  error.Get(i, j) =
-		  Activations(LayersCount() - 1).Get(i, j) - expected_output[i];
+    for (int j = 0; j < error.GetWidth(); j++)
+      error.Get(i, j) =
+          Activations(LayersCount() - 1).Get(i, j) - expected_output[i];
 
   return error;
 }

@@ -7,25 +7,21 @@
 #include "../matrix/matrix_vector_operations.h"
 #include <iostream>
 
-enum class NormalizingFunction
-{
-  RELU,
-  SIGMOID
-};
+enum class ActivationFunction { RELU, SIGMOID };
 
 class Layer {
- public:
+public:
   Layer(size_t previous_layer_height, size_t layer_height,
-		NormalizingFunction activation_function);
-  Layer(const Layer& other) = default;
-  Layer& operator=(const Layer& other) = default;
+        ActivationFunction activation_function);
+  Layer(const Layer &other) = default;
+  Layer &operator=(const Layer &other) = default;
 
   /// feed forward values
-  matrix::Matrix<double> FeedForward(const matrix::Matrix<double>& input) {
-	nodes_ = matrix::Mul(weights_, input);
-	nodes_.Add(biases_);
-	ApplyActivationFunction(nodes_, activation_function_);
-	return nodes_;
+  matrix::Matrix<double> FeedForward(const matrix::Matrix<double> &input) {
+    nodes_ = matrix::Mul(weights_, input);
+    nodes_.Add(biases_);
+    activated_nodes_ = ApplyActivationFunction(nodes_, activation_function_);
+    return activated_nodes_;
   };
 
   /// sets all weights and biases to random value ranging from 0 to 1
@@ -39,42 +35,51 @@ class Layer {
   /// \param value to witch biases will be set to
   void FillBiases(double value);
 
-  const matrix::Matrix<double>& GetNodes() const;
+  const matrix::Matrix<double> &GetNodes() const;
 
   void Show() {
-	std::cout << " weights:\n"
-			  << ToString(weights_) << "\n biases:\n"
-			  << ToString(biases_) << std::endl;
+    std::cout << " weights:\n"
+              << ToString(weights_) << "\n biases:\n"
+              << ToString(biases_) << std::endl;
   };
 
   size_t GetLayerHeight() const;
-  matrix::Matrix<double>& GetBiases();
+  matrix::Matrix<double> &GetBiases();
   size_t GetPreviousLayerHeight() const;
-  matrix::Matrix<double>& GetWeights();
+  matrix::Matrix<double> &GetWeights();
+  const matrix::Matrix<double> &GetActivatedNodes() const;
 
-  void SetWeights(const matrix::Matrix<double>& weights);
-  void SetBiases(matrix::Matrix<double>& biases);
+  void SetWeights(const matrix::Matrix<double> &weights);
+  void SetBiases(matrix::Matrix<double> &biases);
 
   static double Relu(double val);
 
   static double Sigmoid(double val) { return (1.0 - 1.0 / (1.0 + exp(val))); }
 
   static double SigmoidDerivative(double val) {
-	return Sigmoid(val) * (1 - Sigmoid(val));
+    return Sigmoid(val) * (1 - Sigmoid(val));
+  }
+  static double ReluDerivative(double val) {
+    if (val <= 0)
+      return 0.0;
+    else
+      return 1.0;
   }
 
-  matrix::Matrix<double>& ApplyActivationFunction(
-	  matrix::Matrix<double>& target_vector, NormalizingFunction function_type);
+  matrix::Matrix<double> &
+  ApplyActivationFunction(const matrix::Matrix<double> &target_vector,
+                          ActivationFunction function_type);
 
- protected:
+protected:
   size_t layer_height_;
   size_t previous_layer_height_;
 
-  NormalizingFunction activation_function_;
+  ActivationFunction activation_function_;
 
   matrix::Matrix<double> weights_;
   matrix::Matrix<double> biases_;
   matrix::Matrix<double> nodes_;
+  matrix::Matrix<double> activated_nodes_;
 };
 
-#endif// NEURAL_NETS_CPP_NEURAL_NET_LAYER_H_
+#endif // NEURAL_NETS_CPP_NEURAL_NET_LAYER_H_
