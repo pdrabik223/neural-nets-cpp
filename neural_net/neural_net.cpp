@@ -144,7 +144,7 @@ NeuralNet::CostFunction(const std::vector<double> &expected_output) const {
   for (int i = 0; i < error.GetHeight(); i++)
     for (int j = 0; j < error.GetWidth(); j++)
       error.Get(i, j) =
-          Activations(LayersCount() - 1).Get(i, j) - expected_output[i];
+          Activations( - 1).Get(i, j) - expected_output[i];
 
   return error;
 }
