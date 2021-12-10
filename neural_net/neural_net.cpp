@@ -31,13 +31,11 @@ NeuralNet::NeuralNet(size_t input_layer_size, size_t output_layer_size)
 }
 
 matrix::Matrix<double>
-NeuralNet::FeedForward(const std::vector<double> &input) {
+NeuralNet::FeedForward(const matrix::Matrix<double> &input) {
 
-  input_values_ = matrix::Matrix<double>(input.size(), 1);
-  input_values_.RawData() = input;
+  input_values_ = input;
 
-  matrix::Matrix<double> buffer(input.size(), 1);
-  buffer.RawData() = input;
+  matrix::Matrix<double> buffer(input);
 
   //  matrix::Matrix<double> input_matrix(input);
 
@@ -79,18 +77,16 @@ void NeuralNet::FillRandom() {
 //  cache invalidation and naming things.
 //
 //                                      -- Phil Karlton
-double NeuralNet::PropagateBackwards(const std::vector<double> &expected,
-                                     double learning_rate) {
+Nabla NeuralNet::PropagateBackwards(const matrix::Matrix<double> &error) {
 
   matrix::Matrix<matrix::Matrix<double>> nabla_b(network_layers_.size(), 1);
   matrix::Matrix<matrix::Matrix<double>> nabla_w(network_layers_.size(), 1);
 
-  matrix::Matrix<double> expected_matrix(matrix::ConvertToMatrix(expected));
+  //  matrix::Matrix<double> expected_matrix(matrix::ConvertToMatrix(error));
 
   // output layer
   matrix::Matrix<double> delta = HadamardProduct(
-      CostFunction(expected),
-      Layer::ApplyDerivative(Nodes(-1), ActivationFunction(-2)));
+      error, Layer::ApplyDerivative(Nodes(-1), ActivationFunction(-2)));
   nabla_b.Get(-1) = delta;
 
   nabla_w.Get(-1) = Mul(delta, Transpose(Activations(-2)));
@@ -108,33 +104,16 @@ double NeuralNet::PropagateBackwards(const std::vector<double> &expected,
 
     nabla_w.Get(-l) = Mul(delta, matrix::Transpose(Activations(-1 - l)));
   }
-  // -------- apply changes -------
 
-  for (int l = 1; l <= network_layers_.size(); l++) {
-
-    Weights(-l).Sub(Mul(nabla_w.Get(-l), learning_rate));
-
-    Biases(-l).Sub(Mul(nabla_b.Get(-l), learning_rate));
-  }
-
-  double sum = 0.0;
-
-  auto matrix_error = CostFunction(expected);
-  for (int i = 0; i < matrix_error.GetHeight(); i++)
-    for (int j = 0; j < matrix_error.GetWidth(); j++)
-
-      sum += matrix_error.Get(i, j);
-  return sum;
+  return {nabla_w, nabla_b};
 }
 
 matrix::Matrix<double>
-NeuralNet::CostFunction(const std::vector<double> &expected_output) const {
+NeuralNet::CostFunction(const matrix::Matrix<double> &expected_output) const {
 
-  matrix::Matrix<double> error(expected_output.size(), 1);
+  matrix::Matrix<double> error(expected_output.GetHeight(), 1);
 
-  for (int i = 0; i < error.GetHeight(); i++)
-    for (int j = 0; j < error.GetWidth(); j++)
-      error.Get(i, j) = Activations(-1).Get(i, j) - expected_output[i];
+  error = Sub(Activations(-1), expected_output);
 
   return error;
 }

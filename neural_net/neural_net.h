@@ -8,6 +8,22 @@
 #include "layer.h"
 #include <string>
 
+struct Nabla {
+  Nabla() : weights(), biases() {}
+  Nabla(const matrix::Matrix<matrix::Matrix<double>> &weights,
+        const matrix::Matrix<matrix::Matrix<double>> &biases)
+      : weights(weights), biases(biases) {}
+  matrix::Matrix<matrix::Matrix<double>> weights;
+  matrix::Matrix<matrix::Matrix<double>> biases;
+
+  void operator+=(const Nabla &other) {
+    for (int i = 0; i < weights.GetHeight(); i++)
+      weights.Get(i).Add(other.weights.Get(i));
+    for (int i = 0; i < biases.GetHeight(); i++)
+      biases.Get(i).Add(other.biases.Get(i));
+  }
+};
+
 class NeuralNet {
 
 public:
@@ -31,13 +47,23 @@ public:
 
   void Show();
 
-  matrix::Matrix<double> FeedForward(const std::vector<double> &input);
+  matrix::Matrix<double> FeedForward(const matrix::Matrix<double> &input);
 
-  double PropagateBackwards(const std::vector<double> &expected,
-                            double learning_rate);
+  Nabla PropagateBackwards(const matrix::Matrix<double> &error);
+
+  void Update(Nabla nabla, double learning_rate){
+    // -------- apply changes -------
+
+    for (int l = 1; l <= network_layers_.size(); l++) {
+
+      Weights(-l).Sub(Mul(nabla.weights.Get(-l), learning_rate));
+
+      Biases(-l).Sub(Mul(nabla.biases.Get(-l), learning_rate));
+    }
+  }
 
   matrix::Matrix<double>
-  CostFunction(const std::vector<double> &expected_output) const;
+  CostFunction(const matrix::Matrix<double> &expected_output) const;
 
   const matrix::Matrix<double> &Activations(PyId id) const {
     if (id.id == -network_layers_.size() - 1)

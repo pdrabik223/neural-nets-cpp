@@ -1,5 +1,5 @@
 //
-// Created by piotr on 19/11/2021.
+// Created by piotr on 10/12/2021.
 //
 #include "matrix_double.h"
 #include "neural_net.h"
@@ -20,39 +20,43 @@ double Sum(matrix::Matrix<double> &target) {
   return sum;
 }
 
-int LinearFunction(int x, int y) { return x ^ y; }
+struct TestCase {
+  TestCase() : input(784, 1), label(10, 1) {}
+  TestCase(const std::vector<int> &input_values, int label_val)
+      : input(784, 1), label(10, 1) {
+    for (int i = 0; i < 784; i++)
+      input.Get(i) = input_values[i];
+
+    for (int i = 0; i < 10; i++)
+      if (i == label_val)
+        label.Get(i) = 1;
+      else
+        label.Get(i) = 0;
+  }
+  /// 784 values from 0 to 1
+  matrix::Matrix<double> input;
+  /// 10 values only one is 1
+  matrix::Matrix<double> label;
+};
 
 int main(int argc, char **argv) {
   TApplication app("app", &argc, argv);
   auto mg = TGraph();
 
-  NeuralNet test(2, {2}, 1);
+  NeuralNet test(784, {18, 16}, 10);
   test.FillRandom();
 
   double learning_rate = 0.01;
 
+  TestCase one;
+
   for (int i = 0; i < 6000; i++) {
 
-    std::vector<double> input;
-    input.push_back(rand() % 2);
-    input.push_back(rand() % 2);
-
-    matrix::Matrix<double> input_mat(input.size(), 1);
-    input_mat.RawData() = input;
-
-    std::vector<double> target;
-    target.push_back(LinearFunction(int(input[0]), int(input[1])));
-
-    matrix::Matrix<double> target_mat(target.size(), 1);
-    target_mat.RawData() = target;
-
     Nabla nabla;
-
-    test.FeedForward(input_mat);
-    auto error = test.CostFunction(target_mat);
+    test.FeedForward(one.input);
+    auto error = test.CostFunction(one.label);
     nabla = test.PropagateBackwards(error);
     test.Update(nabla, learning_rate);
-
     mg.SetPoint(i, i, abs(Sum(error)));
   }
 
