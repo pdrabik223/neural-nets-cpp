@@ -44,5 +44,7 @@ add_executable(mnist MNIST-try/mnist.cpp
 set(executables neural_nets_cpp mnist)
 
 target_link_libraries(mnist PUBLIC ROOT::Core ROOT::Gui)
-    target_link_libraries(neural_nets_cpp PUBLIC ROOT::Core ROOT::Gui)
-
+target_link_libraries(neural_nets_cpp PUBLIC ROOT::Core ROOT::Gui)
+target_link_libraries(
+        xor_example
+        PUBLIC ROOT::Core ROOT::Gui)

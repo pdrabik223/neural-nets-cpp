@@ -20,54 +20,91 @@ double Sum(matrix::Matrix<double> &target) {
   return sum;
 }
 
-int LinearFunction(int x, int y) { return x ^ y; }
+
+double LinearFunction(double x, double y) { return 2 * x + y; }
+
+struct TestCase {
+  TestCase() : input(2, 1), label(2, 1) {
+    input.Get(0) = (double)rand() / (double)RAND_MAX;
+    input.Get(1) = (double)rand() / (double)RAND_MAX;
+    label.Get(0) = LinearFunction(input.Get(0) ,input.Get(1));
+    label.Get(1) = LinearFunction(input.Get(1) ,input.Get(0));
+
+  }
+  /// 784 values from 0 to 1
+  matrix::Matrix<double> input;
+  /// 10 values only one is 1
+  matrix::Matrix<double> label;
+};
 
 int main(int argc, char **argv) {
   TApplication app("app", &argc, argv);
-  auto mg = TGraph();
+  auto learning_error = TGraph();
 
-  NeuralNet test(2, {2}, 1);
-  test.FillRandom();
+  NeuralNet neural_net(2, {4}, 2);
+  neural_net.FillRandom();
 
-  double learning_rate = 0.01;
+  double learning_rate = 0.1;
 
-  for (int i = 0; i < 6000; i++) {
+  const size_t kEpochs = 5;
+  const size_t kBatchSize = 60;
+  const size_t kMiniBach = 10;
 
-    std::vector<double> input;
-    input.push_back(rand() % 2);
-    input.push_back(rand() % 2);
+  for (int b = 0; b < kEpochs; b++) {
+    for (int i = 0; i < kBatchSize; i++) {
 
-    matrix::Matrix<double> input_mat(input.size(), 1);
-    input_mat.RawData() = input;
+      double error_sum = 0;
+      for (int k = 0; k < kMiniBach; k++) {
 
-    std::vector<double> target;
-    target.push_back(LinearFunction(int(input[0]), int(input[1])));
+        TestCase test_case;
+        Nabla nabla;
 
-    matrix::Matrix<double> target_mat(target.size(), 1);
-    target_mat.RawData() = target;
+        neural_net.FeedForward(test_case.input);
+        auto error = neural_net.CostFunction(test_case.label);
+        nabla = neural_net.PropagateBackwards(error);
+        neural_net.Update(nabla, learning_rate);
 
-    Nabla nabla;
+        error_sum += Sum(error);
+        //        printf("epoch: %d\tbatch %d\terror %lf\n", b, i, error_sum);
+      }
+      error_sum /= (double)kMiniBach;
+      learning_error.SetPoint(b * kBatchSize + i, b * kBatchSize + i,
+                              abs(error_sum));
 
-    test.FeedForward(input_mat);
-    auto error = test.CostFunction(target_mat);
-    nabla = test.PropagateBackwards(error);
-    test.Update(nabla, learning_rate);
+      //      if (error_sum < 0.000001)
+      //        learning_rate -=  abs(error_sum)/ (double)10;
+      //      if (learning_rate < 0)
+      //        goto quit;
 
-    mg.SetPoint(i, i, abs(Sum(error)));
+      //      error_sum /= kMiniBach;
+      //      nabla /= kMiniBach;
+    }
+  }
+quit:
+  double error = 0;
+  printf("test no\t x value\ty value\tcorrect answer\t net estimation\n");
+  for (int i = 0; i < 100; i++) {
+
+    TestCase test_case;
+
+    neural_net.FeedForward(test_case.input);
+    printf("%d\t%lf\t%lf\t%lf %lf\t%lf %lf\n", i, test_case.input.Get(0),
+           test_case.input.Get(1), test_case.label.Get(0),test_case.label.Get(1),
+           neural_net.Activations(-1).Get(0),neural_net.Activations(-1).Get(1));
   }
 
   auto c = new TCanvas("canvas", "NeuralNets", 10, 10, 800, 600);
-  mg.SetTitle("Global_Net_Error;Iterations;Error");
-  mg.SetMarkerStyle(22);
-  mg.SetFillStyle(0);
-  mg.SetMarkerSize(0);
-  mg.SetDrawOption("LP");
-  mg.SetLineColor(4);
-  mg.SetLineWidth(2);
-  mg.Draw();
+  learning_error.SetTitle("Global_Net_Error;Iterations;Error");
+  learning_error.SetMarkerStyle(22);
+  learning_error.SetFillStyle(0);
+  learning_error.SetMarkerSize(0);
+  learning_error.SetDrawOption("LP");
+  learning_error.SetLineColor(4);
+  learning_error.SetLineWidth(2);
+  learning_error.Draw();
 
   TRootCanvas *rc = (TRootCanvas *)c->GetCanvasImp();
-  app.Run();
+app.Run();
 
-  return 0;
+return 0;
 }

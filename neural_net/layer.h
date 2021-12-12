@@ -11,6 +11,8 @@ enum class ActivationFunction { RELU, SIGMOID };
 
 class Layer {
 public:
+
+
   Layer(size_t previous_layer_height, size_t layer_height,
         ActivationFunction activation_function);
   Layer(const Layer &other) = default;
@@ -48,7 +50,7 @@ public:
   size_t GetPreviousLayerHeight() const;
   matrix::Matrix<double> &GetWeights();
   const matrix::Matrix<double> &GetActivatedNodes() const;
-  const ActivationFunction& GetActivationFunction() const;
+  ActivationFunction& GetActivationFunction() ;
   void SetWeights(const matrix::Matrix<double> &weights);
   void SetBiases(matrix::Matrix<double> &biases);
 

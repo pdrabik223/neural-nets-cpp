@@ -17,10 +17,22 @@ struct Nabla {
   matrix::Matrix<matrix::Matrix<double>> biases;
 
   void operator+=(const Nabla &other) {
+
+    if (weights.GetHeight() == 0) {
+      weights = other.weights;
+      biases = other.biases;
+    } else {
+      for (int i = 0; i < weights.GetHeight(); i++)
+        weights.Get(i).Add(other.weights.Get(i));
+      for (int i = 0; i < biases.GetHeight(); i++)
+        biases.Get(i).Add(other.biases.Get(i));
+    }
+  }
+  void operator/=(const int value) {
     for (int i = 0; i < weights.GetHeight(); i++)
-      weights.Get(i).Add(other.weights.Get(i));
+      weights.Get(i).Div(value);
     for (int i = 0; i < biases.GetHeight(); i++)
-      biases.Get(i).Add(other.biases.Get(i));
+      biases.Get(i).Mul(value);
   }
 };
 
@@ -51,7 +63,7 @@ public:
 
   Nabla PropagateBackwards(const matrix::Matrix<double> &error);
 
-  void Update(Nabla nabla, double learning_rate){
+  void Update(Nabla nabla, double learning_rate) {
     // -------- apply changes -------
 
     for (int l = 1; l <= network_layers_.size(); l++) {
@@ -64,6 +76,8 @@ public:
 
   matrix::Matrix<double>
   CostFunction(const matrix::Matrix<double> &expected_output) const;
+  matrix::Matrix<double>
+  PowCostFunction(const matrix::Matrix<double> &expected_output) const;
 
   const matrix::Matrix<double> &Activations(PyId id) const {
     if (id.id == -network_layers_.size() - 1)
@@ -87,7 +101,7 @@ public:
     return network_layers_[id.ConvertId(network_layers_.size())].GetBiases();
   }
 
-  const ActivationFunction &ActivationFunction(PyId id) const {
+  ActivationFunction &ActivationFunction(PyId id) {
 
     return network_layers_[id.ConvertId(network_layers_.size())]
         .GetActivationFunction();

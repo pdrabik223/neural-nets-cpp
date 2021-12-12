@@ -131,6 +131,6 @@ double Layer::SigmoidDerivative(double val) {
 }
 double Layer::Sigmoid(double val) { return (1.0 - 1.0 / (1.0 + exp(val))); }
 
-const ActivationFunction& Layer::GetActivationFunction() const {
+ ActivationFunction& Layer::GetActivationFunction()  {
   return activation_function_;
 }

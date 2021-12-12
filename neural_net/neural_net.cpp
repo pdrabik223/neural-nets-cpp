@@ -86,7 +86,7 @@ Nabla NeuralNet::PropagateBackwards(const matrix::Matrix<double> &error) {
 
   // output layer
   matrix::Matrix<double> delta = HadamardProduct(
-      error, Layer::ApplyDerivative(Nodes(-1), ActivationFunction(-2)));
+      error, Layer::ApplyDerivative(Nodes(-1), ActivationFunction(-1)));
   nabla_b.Get(-1) = delta;
 
   nabla_w.Get(-1) = Mul(delta, Transpose(Activations(-2)));
@@ -115,5 +115,13 @@ NeuralNet::CostFunction(const matrix::Matrix<double> &expected_output) const {
 
   error = Sub(Activations(-1), expected_output);
 
+  return error;
+}
+matrix::Matrix<double> NeuralNet::PowCostFunction(
+    const matrix::Matrix<double> &expected_output) const {
+  matrix::Matrix<double> error(expected_output.GetHeight(), 1);
+
+  error = Sub(Activations(-1), expected_output);
+error = matrix::HadamardProduct(error,error);
   return error;
 }

@@ -64,18 +64,20 @@ public:
   /// access specific value by reference
   /// !if matrix an not be represented as a vector the function will result in
   /// error \param i the 'height' part \return targeted value
-  T& Get(PyId i)  {
-    if(!IsVector())
+  T &Get(PyId i) {
+    if (!IsVector())
       throw "only vectors can be accessed via this handle";
-    return data_[ToInt(i.ConvertId(shape_.height), unsigned(0))]; };
+    return data_[ToInt(i.ConvertId(shape_.height), unsigned(0))];
+  };
 
-    /// access specific value by reference
+  /// access specific value by reference
   /// !if matrix an not be represented as a vector the function will result in
   /// error \param i the 'height' part \return targeted value
-  T Get(PyId i) const  {
-    if(!IsVector())
+  T Get(PyId i) const {
+    if (!IsVector())
       throw "only vectors can be accessed via this handle";
-    return data_[ToInt(i.ConvertId(shape_.height), unsigned(0))]; };
+    return data_[ToInt(i.ConvertId(shape_.height), unsigned(0))];
+  };
   /// access specific value by reference
   /// \param i the 'height' part
   /// \param j the 'width' part
@@ -106,6 +108,7 @@ public:
   void Mul(const T &other);
   void Mul(const Matrix<T> &other);
 
+  void Div(const T &other);
   bool operator==(const Matrix &rhs) const;
   bool operator!=(const Matrix &rhs) const;
 
@@ -302,6 +305,11 @@ template <class T> void Matrix<T>::Transpose() {
     }
 }
 template <class T> const Shape &Matrix<T>::GetShape() const { return shape_; }
+template <class T> void Matrix<T>::Div(const T &other) {
+  for (int i = 0; i < GetHeight(); i++)
+    for (int j = 0; j < GetWidth(); j++)
+      Get(i, j) /= other;
+}
 
 template <class T> matrix::Matrix<T> Transpose(const matrix::Matrix<T> &other) {
   matrix::Matrix<T> transposed_matrix(other);
