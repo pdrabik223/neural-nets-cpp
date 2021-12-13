@@ -40,7 +40,7 @@ int main(int argc, char **argv) {
   auto learning_error = TGraph();
 
   NeuralNet neural_net(2, {4}, 1);
-  neural_net.ActivationFunction(-1) = ActivationFunction::SOFTMAX;
+  neural_net.GetActivationFunction(-1) = ActivationFunction::SOFTMAX;
   neural_net.FillRandom();
 
   double learning_rate = 0.1;

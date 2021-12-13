@@ -132,12 +132,14 @@ int main(int argc, char **argv) {
   NeuralNet nn(784, {16, 16}, 10);
   //  nn.ActivationFunction(-3) = ActivationFunction::SIGMOID;
   //  nn.ActivationFunction(-2) = ActivationFunction::SIGMOID;
-  nn.ActivationFunction(-1) = ActivationFunction::SIGMOID;
+  nn.GetActivationFunction(-1) = ActivationFunction::SIGMOID;
   nn.FillRandom();
 
   double learning_rate = 0.1;
 
   const int kEpochs = 10;
+//  const double kLearningStep = ;
+
   const int kBatchSize = 1000;
   const int kMiniBatchSize = 10;
 

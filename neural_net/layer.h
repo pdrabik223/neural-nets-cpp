@@ -13,6 +13,11 @@ class Layer {
 public:
   Layer(size_t previous_layer_height, size_t layer_height,
         ActivationFunction activation_function);
+
+  Layer(const matrix::Matrix<double> &weights,
+        const matrix::Matrix<double> &biases,
+        ActivationFunction activation_function);
+
   Layer(const Layer &other) = default;
   Layer &operator=(const Layer &other) = default;
 
@@ -43,9 +48,9 @@ public:
               << ToString(biases_) << std::endl;
   };
 
-  size_t GetLayerHeight() const;
+//  size_t GetLayerHeight() const;
   matrix::Matrix<double> &GetBiases();
-  size_t GetPreviousLayerHeight() const;
+//  size_t GetPreviousLayerHeight() const;
   matrix::Matrix<double> &GetWeights();
   const matrix::Matrix<double> &GetActivatedNodes() const;
   ActivationFunction &GetActivationFunction();
@@ -74,8 +79,8 @@ protected:
   matrix::Matrix<double> &
   ApplyActivationFunction(const matrix::Matrix<double> &target_vector,
                           ActivationFunction function_type);
-  size_t layer_height_;
-  size_t previous_layer_height_;
+//  size_t layer_height_{};
+//  size_t previous_layer_height_{};
 
   ActivationFunction activation_function_;
 

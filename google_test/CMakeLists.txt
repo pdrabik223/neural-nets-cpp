@@ -8,8 +8,6 @@ include_directories(${CMAKE_SOURCE_DIR}/matrix)
 include_directories(${CMAKE_SOURCE_DIR}/neural_net)
 
 set(matrix_dir
-        ${CMAKE_SOURCE_DIR}/matrix/matrix_double.cpp
-        ${CMAKE_SOURCE_DIR}/matrix/matrix_double.h
         ${CMAKE_SOURCE_DIR}/matrix/matrix.h
         ${CMAKE_SOURCE_DIR}/matrix/matrix.cpp
         ${CMAKE_SOURCE_DIR}/matrix/matrix_vector_operations.h

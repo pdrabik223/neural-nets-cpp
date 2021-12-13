@@ -15,8 +15,7 @@ enable_testing()
 
 
 set(matrix_dir
-        matrix/matrix_double.cpp
-        matrix/matrix_double.h
+
         matrix/matrix.h
         matrix/matrix.cpp
         matrix/matrix_vector_operations.h

@@ -5,6 +5,8 @@
 #ifndef NEURAL_NETS_CPP_MATRIX_MATRIX_H_
 #define NEURAL_NETS_CPP_MATRIX_MATRIX_H_
 #include <cassert>
+#include <fstream>
+#include <ostream>
 #include <string>
 #include <vector>
 
@@ -31,6 +33,17 @@ struct Shape {
 
   bool operator==(const Shape &rhs) const;
   bool operator!=(const Shape &rhs) const;
+
+  friend std::ostream &operator<<(std::ostream &os, const Shape &shape);
+  friend std::istream &operator>>(std::istream &in, Shape &shape) {
+
+    in.ignore(8);
+    in >> shape.height;
+    in.ignore(7);
+    in >> shape.width;
+
+    return in;
+  }
 };
 
 template <class T> class Matrix {
@@ -116,6 +129,27 @@ public:
 
   //  template <class T>
   std::vector<T> &RawData() { return data_; }
+
+  void AppendToFile(std::fstream &os) {
+    os << "shape_: " << shape_ << " data_: ";
+    for (auto &i : data_)
+      os << i << ' ';
+  }
+  void ReadFromFile(std::fstream &os) {
+    os.ignore(9);
+    os >> shape_;
+    os.ignore(8);
+
+    for (int i = 0; i < shape_.height; i++)
+      for (int j = 0; j < shape_.width; j++) {
+        T buffer;
+        os >> buffer;
+        data_.push_back(buffer);
+      }
+  }
+
+  friend std::fstream &operator<<(std::fstream &os, const Matrix &matrix);
+  friend std::fstream &operator>>(std::fstream &os, Matrix &matrix);
 
 private:
   /// convert position in 2d space, to its 1D notation
@@ -309,6 +343,28 @@ template <class T> void Matrix<T>::Div(const T &other) {
   for (int i = 0; i < GetHeight(); i++)
     for (int j = 0; j < GetWidth(); j++)
       Get(i, j) /= other;
+}
+template <class T>
+std::fstream &operator<<(std::fstream &os, const matrix::Matrix<T> &matrix) {
+  os << "shape_: " << matrix.shape_ << " data_: ";
+  for (auto &i : matrix.data_)
+    os << i << ' ';
+
+  return os;
+}
+template <class T>
+std::fstream &operator>>(std::fstream &os, matrix::Matrix<T> &matrix) {
+  os.ignore(9);
+  os >> matrix.shape_;
+  os.ignore(8);
+
+  for (int i = 0; i < matrix.shape_.height; i++)
+    for (int j = 0; j < matrix.shape_.width; j++) {
+      T buffer;
+      os >> buffer;
+      matrix.data_.push_back(buffer);
+    }
+  return os;
 }
 
 template <class T> matrix::Matrix<T> Transpose(const matrix::Matrix<T> &other) {

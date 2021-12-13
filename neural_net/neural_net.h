@@ -6,6 +6,7 @@
 #define NEURAL_NETS_CPP_NEURTAL_NET_NEURALNET_H_
 
 #include "layer.h"
+#include <fstream>
 #include <string>
 
 struct Nabla {
@@ -46,6 +47,8 @@ public:
             size_t output_layer_size);
 
   NeuralNet(size_t input_layer_size, size_t output_layer_size);
+
+  NeuralNet(const std::string &path) { LoadFromFile(path); }
 
   /// sets all weights and biases to random value ranging from 0 to 1
   void FillRandom();
@@ -101,7 +104,7 @@ public:
     return network_layers_[id.ConvertId(network_layers_.size())].GetBiases();
   }
 
-  ActivationFunction &ActivationFunction(PyId id) {
+  ActivationFunction &GetActivationFunction(PyId id) {
 
     return network_layers_[id.ConvertId(network_layers_.size())]
         .GetActivationFunction();
@@ -110,11 +113,46 @@ public:
   Layer &GetLayer(unsigned layer_id) { return network_layers_[layer_id]; }
 
   size_t LayersCount() const { return network_layers_.size(); }
+  void SaveToFile(const std::string &file_path) {
+    std::fstream file;
+    file.open(file_path + ".txt", std::ios::out);
+    file << input_layer_size_ << "\n";
+    file << network_layers_.size() << "\n";
+
+    for (int i = 0; i < network_layers_.size(); i++) {
+      network_layers_[i].GetWeights().AppendToFile(file);
+      file << "\n";
+      network_layers_[i].GetBiases().AppendToFile(file);
+      file << "\n";
+      file << (int)network_layers_[i].GetActivationFunction();
+      file << "\n";
+    }
+    file.close();
+  }
+  void LoadFromFile(const std::string &file_path) {
+    std::fstream file;
+    file.open(file_path + ".txt", std::ios::in);
+    file >> input_layer_size_;
+    input_values_ = matrix::Matrix<double>(input_layer_size_,1);
+    int network_layers_count;
+    file >> network_layers_count;
+    for (int i = 0; i < network_layers_count; i++) {
+      matrix::Matrix<double> weights;
+      matrix::Matrix<double> biases;
+      int activation_function;
+
+      weights.ReadFromFile(file);
+      biases.ReadFromFile(file);
+      file >> activation_function;
+      network_layers_.emplace_back(weights, biases,
+                                   ActivationFunction(activation_function));
+    }
+  }
 
 private:
 protected:
   size_t input_layer_size_;
-  size_t output_layer_size;
+
   matrix::Matrix<double> input_values_;
   std::vector<Layer> network_layers_;
 };

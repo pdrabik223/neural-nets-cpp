@@ -7,8 +7,7 @@
 NeuralNet::NeuralNet(size_t input_layer_size,
                      const std::vector<size_t> &hidden_layer_sizes,
                      size_t output_layer_size)
-    : input_layer_size_(input_layer_size),
-      output_layer_size(output_layer_size) {
+    : input_layer_size_(input_layer_size){
 
   network_layers_.emplace_back(input_layer_size, hidden_layer_sizes[0],
                                ActivationFunction::RELU);
@@ -23,8 +22,7 @@ NeuralNet::NeuralNet(size_t input_layer_size,
                                ActivationFunction::RELU);
 }
 NeuralNet::NeuralNet(size_t input_layer_size, size_t output_layer_size)
-    : input_layer_size_(input_layer_size),
-      output_layer_size(output_layer_size) {
+    : input_layer_size_(input_layer_size) {
 
   network_layers_.emplace_back(input_layer_size, output_layer_size,
                                ActivationFunction::RELU);
@@ -86,7 +84,7 @@ Nabla NeuralNet::PropagateBackwards(const matrix::Matrix<double> &error) {
 
   // output layer
   matrix::Matrix<double> delta = HadamardProduct(
-      error, Layer::ApplyDerivative(Nodes(-1), ActivationFunction(-1)));
+      error, Layer::ApplyDerivative(Nodes(-1), GetActivationFunction(-1)));
   nabla_b.Get(-1) = delta;
 
   nabla_w.Get(-1) = Mul(delta, Transpose(Activations(-2)));
@@ -96,7 +94,7 @@ Nabla NeuralNet::PropagateBackwards(const matrix::Matrix<double> &error) {
   for (int l = 2; l <= network_layers_.size(); l++) {
 
     const matrix::Matrix<double> kSp =
-        Layer::ApplyDerivative(Nodes(-l), ActivationFunction(-l));
+        Layer::ApplyDerivative(Nodes(-l), GetActivationFunction(-l));
 
     delta = HadamardProduct(Mul(matrix::Transpose(Weights(1 - l)), delta), kSp);
 
