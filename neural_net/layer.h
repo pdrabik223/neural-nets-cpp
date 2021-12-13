@@ -7,12 +7,10 @@
 #include "../matrix/matrix_vector_operations.h"
 #include <iostream>
 
-enum class ActivationFunction { RELU, SIGMOID };
+enum class ActivationFunction { RELU, SIGMOID, SOFTMAX };
 
 class Layer {
 public:
-
-
   Layer(size_t previous_layer_height, size_t layer_height,
         ActivationFunction activation_function);
   Layer(const Layer &other) = default;
@@ -50,10 +48,15 @@ public:
   size_t GetPreviousLayerHeight() const;
   matrix::Matrix<double> &GetWeights();
   const matrix::Matrix<double> &GetActivatedNodes() const;
-  ActivationFunction& GetActivationFunction() ;
+  ActivationFunction &GetActivationFunction();
   void SetWeights(const matrix::Matrix<double> &weights);
   void SetBiases(matrix::Matrix<double> &biases);
 
+
+  static matrix::Matrix<double>
+  ApplyDerivative(const matrix::Matrix<double> &vector_a,
+                  ActivationFunction activation_function);
+protected:
   static double Relu(double val);
 
   static double Sigmoid(double val);
@@ -61,9 +64,6 @@ public:
   static double SigmoidDerivative(double val);
   static double ReluDerivative(double val);
 
-  static matrix::Matrix<double>
-  ApplyDerivative(const matrix::Matrix<double> &vector_a,
-                  ActivationFunction activation_function);
 
   static matrix::Matrix<double>
   ApplySigmoidDerivative(const matrix::Matrix<double> &vector_a);
@@ -74,8 +74,6 @@ public:
   matrix::Matrix<double> &
   ApplyActivationFunction(const matrix::Matrix<double> &target_vector,
                           ActivationFunction function_type);
-
-protected:
   size_t layer_height_;
   size_t previous_layer_height_;
 

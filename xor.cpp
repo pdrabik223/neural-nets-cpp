@@ -40,6 +40,7 @@ int main(int argc, char **argv) {
   auto learning_error = TGraph();
 
   NeuralNet neural_net(2, {4}, 1);
+  neural_net.ActivationFunction(-1) = ActivationFunction::SOFTMAX;
   neural_net.FillRandom();
 
   double learning_rate = 0.1;
@@ -69,14 +70,8 @@ int main(int argc, char **argv) {
       learning_error.SetPoint(b * kBatchSize + i, b * kBatchSize + i,
                               abs(error_sum));
 
-      //      if (error_sum < 0.000001)
-      //        learning_rate -=  abs(error_sum)/ (double)10;
-      //      if (learning_rate < 0)
-      //        goto quit;
-
-      //      error_sum /= kMiniBach;
-      //      nabla /= kMiniBach;
     }
+//    learning_rate -= 0.099;
   }
 quit:
   double error = 0;

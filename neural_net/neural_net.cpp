@@ -122,6 +122,15 @@ matrix::Matrix<double> NeuralNet::PowCostFunction(
   matrix::Matrix<double> error(expected_output.GetHeight(), 1);
 
   error = Sub(Activations(-1), expected_output);
-error = matrix::HadamardProduct(error,error);
+  matrix::Matrix<double> sign(error.GetHeight(), 1);
+  for (int i = 0; i < error.GetHeight(); ++i) {
+    if (error.Get(i) < 0)
+      sign.Get(i) = -1;
+    else
+      sign.Get(i) = 1;
+  }
+  error = matrix::HadamardProduct(error, error);
+  error = matrix::HadamardProduct(error, sign);
+
   return error;
 }

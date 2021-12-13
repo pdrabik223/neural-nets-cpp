@@ -18,12 +18,12 @@
 #include "TRootCanvas.h"
 #include <random>
 
-double Sum(matrix::Matrix<double> &target) {
-  double sum = 0.0;
-  for (auto i : target.RawData())
-    sum += i;
-  return sum;
-}
+// double Sum(matrix::Matrix<double> &target) {
+//   double sum = 0.0;
+//   for (auto i : target.RawData())
+//     sum += abs(i);
+//   return sum;
+// }
 
 struct TestCase {
   TestCase() : input(784, 1), label(10, 1) {}
@@ -46,27 +46,43 @@ struct TestCase {
 };
 
 void LoadTestCases(const std::string &csv_file_path,
-                   std::vector<TestCase> &target) {
+                   std::vector<TestCase> &target, int no_test_cases = 0) {
   target.clear();
   std::ifstream file(csv_file_path);
   std::string line;
   std::getline(file, line);
-
-  while (file.good()) {
-    int label;
-    file >> label;
-    char coma;
-    file >> coma;
-    std::vector<int> pixels;
-    for (int i = 0; i < 784; i++) {
-      int pixel;
-      file >> pixel;
-      if (i < 783)
-        file >> coma;
-      pixels.push_back(pixel);
+  if (no_test_cases == 0)
+    while (file.good()) {
+      int label;
+      file >> label;
+      char coma;
+      file >> coma;
+      std::vector<int> pixels;
+      for (int i = 0; i < 784; i++) {
+        int pixel;
+        file >> pixel;
+        if (i < 783)
+          file >> coma;
+        pixels.push_back(pixel);
+      }
+      target.emplace_back(pixels, label);
     }
-    target.emplace_back(pixels, label);
-  }
+  else
+    for (int t = 0; t < no_test_cases; t++) {
+      int label;
+      file >> label;
+      char coma;
+      file >> coma;
+      std::vector<int> pixels;
+      for (int i = 0; i < 784; i++) {
+        int pixel;
+        file >> pixel;
+        if (i < 783)
+          file >> coma;
+        pixels.push_back(pixel);
+      }
+      target.emplace_back(pixels, label);
+    }
   file.close();
 }
 void DisplayTestCase(const TestCase &image, TApplication &app) {
@@ -97,12 +113,12 @@ int main(int argc, char **argv) {
   //  / load training dataset
   std::vector<TestCase> train_data;
   printf("load train data...\t");
-  LoadTestCases("../MNIST-try/mnist_train.csv", train_data);
+  LoadTestCases("../MNIST-try/mnist_train.csv", train_data, 60'000);
   printf("done \n");
 
   std::vector<TestCase> test_data;
   printf("load test data...\t");
-  LoadTestCases("../MNIST-try/mnist_test.csv", test_data);
+  LoadTestCases("../MNIST-try/mnist_test.csv", test_data, 10'000);
   printf("done \n");
 
   printf("train data set size: %d", train_data.size());
@@ -114,16 +130,16 @@ int main(int argc, char **argv) {
   auto mg = TGraph();
 
   NeuralNet nn(784, {16, 16}, 10);
-  nn.ActivationFunction(-3) = ActivationFunction::SIGMOID;
-  nn.ActivationFunction(-2) = ActivationFunction::SIGMOID;
+  //  nn.ActivationFunction(-3) = ActivationFunction::SIGMOID;
+  //  nn.ActivationFunction(-2) = ActivationFunction::SIGMOID;
   nn.ActivationFunction(-1) = ActivationFunction::SIGMOID;
   nn.FillRandom();
 
-  double learning_rate = 0.5;
+  double learning_rate = 0.1;
 
-  const int kEpochs = 5;
+  const int kEpochs = 10;
   const int kBatchSize = 1000;
-  const int kMiniBatchSize = 100;
+  const int kMiniBatchSize = 10;
 
   TestCase one;
 
@@ -137,25 +153,24 @@ int main(int argc, char **argv) {
     for (int b = 0; b < train_data.size() - kMiniBatchSize;
          b += kMiniBatchSize) {
 
-      double sum = 0;
+      double error_sum = 0;
       std::cout << "e: " << e << " b: " << b / kMiniBatchSize;
 
-        Nabla nabla;
       for (int i = 0; i < kMiniBatchSize; i++) {
+        Nabla nabla;
         nn.FeedForward(train_data[b + i].input);
         auto error = nn.PowCostFunction(train_data[b + i].label);
         nabla += nn.PropagateBackwards(error);
-        sum += Sum(error);
-      }
-       nabla /= kMiniBatchSize;
+        error_sum += Sum(error);
         nn.Update(nabla, learning_rate);
+      }
+//      nabla /= kMiniBatchSize;
 
-      mg.SetPoint(k, k, abs(sum / (double)kMiniBatchSize));
-      std::cout << " error: " << abs(sum / (double)kMiniBatchSize) << "\n";
+      mg.SetPoint(k, k, error_sum / (double)kMiniBatchSize);
+      std::cout << " error: " << error_sum / (double)kMiniBatchSize<< "\n";
       k += 1;
-
     }
-    learning_rate -= 0.099;
+    //    learning_rate -= 0.099;
   }
 
   printf("id\tlabel\tnn approximation\n");
@@ -163,15 +178,22 @@ int main(int argc, char **argv) {
   for (int i = 0; i < 10; i++) {
 
     //    printf("%d\n", i);
-    std::cout << "label:    \t" << ToString(matrix::Transpose(train_data[i].label))<<"\n";
-    std::cout << "net aprox:\t" << ToString(matrix::Transpose(nn.FeedForward(train_data[i].input)))<<"\n";
+    std::cout << "label:    \t"
+              << ToString(matrix::Transpose(train_data[i].label)) << "\n";
+    std::cout << "net aprox:\t"
+              << ToString(
+                     matrix::Transpose(nn.FeedForward(train_data[i].input)))
+              << "\n";
   }
   printf("==============test data============\n");
   for (int i = 0; i < 10; i++) {
 
-//    printf("%d\n", i);
-    std::cout << "label:    \t" << ToString(matrix::Transpose(test_data[i].label))<<"\n";
-    std::cout << "net aprox:\t" << ToString(matrix::Transpose(nn.FeedForward(test_data[i].input)))<<"\n";
+    //    printf("%d\n", i);
+    std::cout << "label:    \t"
+              << ToString(matrix::Transpose(test_data[i].label)) << "\n";
+    std::cout << "net aprox:\t"
+              << ToString(matrix::Transpose(nn.FeedForward(test_data[i].input)))
+              << "\n";
   }
 
   auto c = new TCanvas("canvas", "NeuralNets", 10, 10, 800, 600);

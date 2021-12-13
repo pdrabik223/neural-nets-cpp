@@ -13,12 +13,7 @@
 #include "TH1.h"
 #include "TRootCanvas.h"
 
-double Sum(matrix::Matrix<double> &target) {
-  double sum = 0.0;
-  for (auto i : target.RawData())
-    sum += i;
-  return sum;
-}
+
 
 
 double LinearFunction(double x, double y) { return 2 * x + y; }
@@ -41,13 +36,13 @@ int main(int argc, char **argv) {
   TApplication app("app", &argc, argv);
   auto learning_error = TGraph();
 
-  NeuralNet neural_net(2, {4}, 2);
+  NeuralNet neural_net(2, {2,2}, 2);
   neural_net.FillRandom();
 
   double learning_rate = 0.1;
 
   const size_t kEpochs = 5;
-  const size_t kBatchSize = 60;
+  const size_t kBatchSize = 600;
   const size_t kMiniBach = 10;
 
   for (int b = 0; b < kEpochs; b++) {

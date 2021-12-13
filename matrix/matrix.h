@@ -381,5 +381,10 @@ template <class T> static std::string ToString(const std::vector<T> &other) {
 
   return output;
 }
-
+template <class T> T Sum(matrix::Matrix<T> &target) {
+  T sum = 0.0;
+  for (auto i : target.RawData())
+    sum += i;
+  return sum;
+}
 #endif // NEURAL_NETS_CPP_MATRIX_MATRIX_H_

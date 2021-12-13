@@ -18,11 +18,11 @@ void Layer::FillRandom() {
 
   for (int i = 0; i < biases_.GetHeight(); i++)
     for (int j = 0; j < biases_.GetWidth(); j++)
-      biases_.Get(i, j) = (double)rand() / (double)RAND_MAX;
+      biases_.Get(i, j) = ((double)rand() / (double)RAND_MAX) / 10.0;
 
   for (int i = 0; i < weights_.GetHeight(); i++)
     for (int j = 0; j < weights_.GetWidth(); j++)
-      weights_.Get(i, j) = (double)rand() / (double)RAND_MAX;
+      weights_.Get(i, j) = ((double)rand() / (double)RAND_MAX)/10.0;
 }
 void Layer::FillWeights(double value) {
 
@@ -58,16 +58,25 @@ Layer::ApplyActivationFunction(const matrix::Matrix<double> &target_vector,
   switch (function_type) {
   case ActivationFunction::RELU:
     for (int i = 0; i < target_vector.GetHeight(); i++)
-      for (int j = 0; j < target_vector.GetWidth(); j++)
-        activated_nodes_.Get(i, j) = Relu(target_vector.Get(i, j));
-
+      activated_nodes_.Get(i) = Relu(target_vector.Get(i));
     break;
+
   case ActivationFunction::SIGMOID:
     for (int i = 0; i < target_vector.GetHeight(); i++)
-      for (int j = 0; j < target_vector.GetWidth(); j++)
-        activated_nodes_.Get(i, j) = Sigmoid(target_vector.Get(i, j));
+      activated_nodes_.Get(i) = Sigmoid(target_vector.Get(i));
+    break;
+
+  case ActivationFunction::SOFTMAX:
+    double sum = 0.0;
+    for (int i = 0; i < target_vector.GetHeight(); i++)
+      sum += exp(target_vector.Get(i));
+    if(sum == 0) sum = 1;
+    for (int i = 0; i < target_vector.GetHeight(); i++)
+      activated_nodes_.Get(i) = exp(activated_nodes_.Get(i)) / sum;
+
     break;
   }
+
   return activated_nodes_;
 }
 double Layer::Relu(double val) {
@@ -118,6 +127,9 @@ Layer::ApplyDerivative(const matrix::Matrix<double> &vector_a,
 
   case ActivationFunction::SIGMOID:
     return ApplySigmoidDerivative(vector_a);
+
+  case ActivationFunction::SOFTMAX:
+    return vector_a;
   }
 }
 double Layer::ReluDerivative(double val) {
@@ -131,6 +143,6 @@ double Layer::SigmoidDerivative(double val) {
 }
 double Layer::Sigmoid(double val) { return (1.0 - 1.0 / (1.0 + exp(val))); }
 
- ActivationFunction& Layer::GetActivationFunction()  {
+ActivationFunction &Layer::GetActivationFunction() {
   return activation_function_;
 }
