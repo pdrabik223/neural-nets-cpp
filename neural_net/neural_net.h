@@ -152,7 +152,6 @@ public:
 private:
 protected:
   size_t input_layer_size_;
-
   matrix::Matrix<double> input_values_;
   std::vector<Layer> network_layers_;
 };

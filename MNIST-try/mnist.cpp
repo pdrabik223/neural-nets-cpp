@@ -1,7 +1,7 @@
 //
 // Created by piotr on 10/12/2021.
 //
-#include "matrix_double.h"
+
 #include "neural_net.h"
 #include <chrono>
 #include <fstream>
@@ -12,7 +12,7 @@
 #include "TCanvas.h"
 #include "TF1.h"
 #include "TGraph.h"
-#include "TH1.h"
+
 #include "TH2F.h"
 
 #include "TRootCanvas.h"
@@ -29,8 +29,10 @@ struct TestCase {
   TestCase() : input(784, 1), label(10, 1) {}
   TestCase(const std::vector<int> &input_values, int label_val)
       : input(784, 1), label(10, 1) {
-    for (int i = 0; i < 784; i++)
-      input.Get(i) = (double)input_values[i] / 255.0;
+
+    for (int i = 0; i < 28; i++)
+      for (int j = 0; j < 28; j++)
+      input.Get((28 - i - 1) * 28 + j) = (double)input_values[i * 28 + j] / 255.0;
 
     for (int i = 0; i < 10; i++)
       if (i == label_val)
@@ -38,6 +40,8 @@ struct TestCase {
       else
         label.Get(i) = 0.0;
   }
+
+  // {}
 
   /// 784 values from 0 to 1
   matrix::Matrix<double> input;
@@ -116,13 +120,7 @@ int main(int argc, char **argv) {
   LoadTestCases("../MNIST-try/mnist_train.csv", train_data, 60'000);
   printf("done \n");
 
-  std::vector<TestCase> test_data;
-  printf("load test data...\t");
-  LoadTestCases("../MNIST-try/mnist_test.csv", test_data, 10'000);
-  printf("done \n");
-
   printf("train data set size: %d", train_data.size());
-  printf("test data set size: %d", test_data.size());
 
   TApplication app("app", &argc, argv);
   //  DisplayTestCase(test_data[12], app);
@@ -130,73 +128,51 @@ int main(int argc, char **argv) {
   auto mg = TGraph();
 
   NeuralNet nn(784, {16, 16}, 10);
-  //  nn.ActivationFunction(-3) = ActivationFunction::SIGMOID;
-  //  nn.ActivationFunction(-2) = ActivationFunction::SIGMOID;
   nn.GetActivationFunction(-1) = ActivationFunction::SIGMOID;
   nn.FillRandom();
 
   double learning_rate = 0.1;
 
   const int kEpochs = 10;
-//  const double kLearningStep = ;
-
-  const int kBatchSize = 1000;
   const int kMiniBatchSize = 10;
 
   TestCase one;
-
   int k = 0;
   for (int e = 0; e < kEpochs; e++) {
+  double average_epoch_error = 0.0;
 
     unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
     std::shuffle(train_data.begin(), train_data.end(),
                  std::default_random_engine(seed));
 
+    std::cout << "e: " << e << "\n";
     for (int b = 0; b < train_data.size() - kMiniBatchSize;
          b += kMiniBatchSize) {
 
       double error_sum = 0;
-      std::cout << "e: " << e << " b: " << b / kMiniBatchSize;
 
       for (int i = 0; i < kMiniBatchSize; i++) {
         Nabla nabla;
+
         nn.FeedForward(train_data[b + i].input);
         auto error = nn.PowCostFunction(train_data[b + i].label);
         nabla += nn.PropagateBackwards(error);
         error_sum += Sum(error);
+        average_epoch_error += Sum(error);
+
         nn.Update(nabla, learning_rate);
       }
-//      nabla /= kMiniBatchSize;
-
-      mg.SetPoint(k, k, error_sum / (double)kMiniBatchSize);
-      std::cout << " error: " << error_sum / (double)kMiniBatchSize<< "\n";
+     mg.SetPoint(k, k, error_sum / (double)kMiniBatchSize);
+      //      std::cout << " error: " << error_sum / (double)kMiniBatchSize <<
+      //      "\n";
       k += 1;
     }
+    average_epoch_error /= train_data.size();
+    if(average_epoch_error <= 0.05) break;
     //    learning_rate -= 0.099;
   }
 
-  printf("id\tlabel\tnn approximation\n");
-  printf("=====================train data==================\n");
-  for (int i = 0; i < 10; i++) {
-
-    //    printf("%d\n", i);
-    std::cout << "label:    \t"
-              << ToString(matrix::Transpose(train_data[i].label)) << "\n";
-    std::cout << "net aprox:\t"
-              << ToString(
-                     matrix::Transpose(nn.FeedForward(train_data[i].input)))
-              << "\n";
-  }
-  printf("==============test data============\n");
-  for (int i = 0; i < 10; i++) {
-
-    //    printf("%d\n", i);
-    std::cout << "label:    \t"
-              << ToString(matrix::Transpose(test_data[i].label)) << "\n";
-    std::cout << "net aprox:\t"
-              << ToString(matrix::Transpose(nn.FeedForward(test_data[i].input)))
-              << "\n";
-  }
+  nn.SaveToFile("../MNIST-try/mnistNN");
 
   auto c = new TCanvas("canvas", "NeuralNets", 10, 10, 800, 600);
   mg.SetTitle("Global_Net_Error;Iterations;Error");

@@ -62,13 +62,6 @@ int main(int argc, char **argv) {
       learning_error.SetPoint(b * kBatchSize + i, b * kBatchSize + i,
                               abs(error_sum));
 
-      //      if (error_sum < 0.000001)
-      //        learning_rate -=  abs(error_sum)/ (double)10;
-      //      if (learning_rate < 0)
-      //        goto quit;
-
-      //      error_sum /= kMiniBach;
-      //      nabla /= kMiniBach;
     }
   }
 quit:
