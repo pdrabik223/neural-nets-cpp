@@ -1,17 +1,6 @@
-# Neural Net
 
+##Funkcja XOR
 Piotr Drabik
-
-## Opis narzędzia
-
-"Neural Net" to narzędzie umożliwiające tworzenie prymitywnych gęstych sieci neuronowych. Oparte w pełni na operacjach
-macierzowych, w aktualnym stanie pozwala na uczenie wzmocnione sieci o dowolnej ilości warstw ukrytych, wielkości
-wektora wejściowego czy wyjściowego. Do dyspozycji użytkownika oddawana jest także kontrola nad funkcją liczenia błędu (
-Cost Function), jak i funkcją aktywacji neurona (Activation function).
-
-W aktualnym stanie Narzędzie jest w stanie skutecznie tworzyć i uczyć sieci gęste.
-
-## XOR
 
 ### Wstęp
 
@@ -38,6 +27,7 @@ Przyjęty learning rate = 0.1 ze spadkiem 0.04999 co 500 powtórzeń cyklu uczen
 
 ### Opis wyników uczenia sieci
 
+
 Wykres błędu sieci na przedziale pierwszych 600 iteracji wacha się w zakresie 0.1 do 0.6, po czym drastycznie spada, by
 przed 1000 powtórzeniem się cyklu uczenia ustabilizować się na 0;
 ![xor_learning](xor_learning.png)
@@ -59,6 +49,9 @@ Tabela przedstawia losowo wygenerowanych 10 par x,y wynik funkcji xor dla nich i
 |7      | 0.000000 |       1.000000|        1.000000|        1.000000|
 |8      | 0.000000 |       0.000000|        0.000000|        0.000000|
 |9      | 1.000000 |       1.000000|        0.000000|        0.000000|
+
+
+
 
 ### Wnioski
 
