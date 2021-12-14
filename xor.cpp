@@ -39,14 +39,12 @@ int main(int argc, char **argv) {
 
   NeuralNet neural_net(2, {4}, 1);
 
-
-
   neural_net.FillRandom();
 
   double learning_rate = 0.1;
   const double kFinalLearningRate = 0.001;
   const size_t kEpochs = 2;
-  const size_t kBatchSize = 500;
+  const size_t kBatchSize = 1000;
   const size_t kMiniBach = 2;
 
   const double kLearningStep = (learning_rate - kFinalLearningRate) / kEpochs;
