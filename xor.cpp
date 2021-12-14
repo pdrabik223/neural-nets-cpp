@@ -1,7 +1,6 @@
 //
 // Created by piotr on 19/11/2021.
 //
-#include "matrix_double.h"
 #include "neural_net.h"
 #include <iostream>
 #include <matrix.h>
@@ -20,14 +19,13 @@ double Sum(matrix::Matrix<double> &target) {
   return sum;
 }
 
-
-double LinearFunction(int x, int y) { return  x ^ y; }
+double LinearFunction(int x, int y) { return x ^ y; }
 struct TestCase {
   TestCase() : input(2, 1), label(1, 1) {
-    input.Get(0) = rand() %2 ;
-    input.Get(1) = rand() %2 ;
+    input.Get(0) = (rand() % 2);
+    input.Get(1) = (rand() % 2);
 
-    label.Get(0) = LinearFunction(input.Get(0) ,input.Get(1));
+    label.Get(0) = LinearFunction(input.Get(0), input.Get(1));
   }
   /// 784 values from 0 to 1
   matrix::Matrix<double> input;
@@ -40,15 +38,18 @@ int main(int argc, char **argv) {
   auto learning_error = TGraph();
 
   NeuralNet neural_net(2, {4}, 1);
-  neural_net.GetActivationFunction(-1) = ActivationFunction::SOFTMAX;
+
+
+
   neural_net.FillRandom();
 
   double learning_rate = 0.1;
-
+  const double kFinalLearningRate = 0.001;
   const size_t kEpochs = 2;
-  const size_t kBatchSize = 100;
-  const size_t kMiniBach = 10;
+  const size_t kBatchSize = 500;
+  const size_t kMiniBach = 2;
 
+  const double kLearningStep = (learning_rate - kFinalLearningRate) / kEpochs;
   for (int b = 0; b < kEpochs; b++) {
     for (int i = 0; i < kBatchSize; i++) {
 
@@ -64,17 +65,14 @@ int main(int argc, char **argv) {
         neural_net.Update(nabla, learning_rate);
 
         error_sum += Sum(error);
-        //        printf("epoch: %d\tbatch %d\terror %lf\n", b, i, error_sum);
       }
+
       error_sum /= (double)kMiniBach;
       learning_error.SetPoint(b * kBatchSize + i, b * kBatchSize + i,
                               abs(error_sum));
-
     }
-//    learning_rate -= 0.099;
   }
-quit:
-  double error = 0;
+
   printf("test no\t x value\ty value\tcorrect answer\t net estimation\n");
   for (int i = 0; i < 10; i++) {
 

@@ -64,8 +64,6 @@ int main(int argc, char **argv) {
 
     }
   }
-quit:
-  double error = 0;
   printf("test no\t x value\ty value\tcorrect answer\t net estimation\n");
   neural_net.SaveToFile("../2paramNN");
   NeuralNet nn2("../2paramNN");
