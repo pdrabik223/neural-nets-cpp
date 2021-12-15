@@ -1,5 +1,6 @@
 
-##Funkcja XOR
+## Funkcja XOR
+
 Piotr Drabik
 
 ### Wstęp
@@ -37,23 +38,23 @@ Analiza sprawności wyuczonej sieci:
 
 Tabela przedstawia losowo wygenerowanych 10 par x,y wynik funkcji xor dla nich i wynik funkcji feed forward
 
-|test no|  x value |       y value |correct answer  | net estimation|
-| :---: | :---: | :---: | :---: | :---: |
-|0      | 1.000000 |       0.000000|        1.000000|        1.000000|
-|1      | 0.000000 |       1.000000|        1.000000|        1.000000|
-|2      | 1.000000 |       1.000000|        0.000000|        0.000000|
-|3      | 1.000000 |       1.000000|        0.000000|        0.000000|
-|4      | 1.000000 |       1.000000|        0.000000|        0.000000|
-|5      | 0.000000 |       0.000000|        0.000000|        0.000000|
-|6      | 0.000000 |       0.000000|        0.000000|        0.000000|
-|7      | 0.000000 |       1.000000|        1.000000|        1.000000|
-|8      | 0.000000 |       0.000000|        0.000000|        0.000000|
-|9      | 1.000000 |       1.000000|        0.000000|        0.000000|
-
-
-
+| test no | x value  | y value  | correct answer | net estimation |
+| :-----: | :------: | :------: | :------------: | :------------: |
+|    0    | 1.000000 | 0.000000 |    1.000000    |    1.000000    |
+|    1    | 0.000000 | 1.000000 |    1.000000    |    1.000000    |
+|    2    | 1.000000 | 1.000000 |    0.000000    |    0.000000    |
+|    3    | 1.000000 | 1.000000 |    0.000000    |    0.000000    |
+|    4    | 1.000000 | 1.000000 |    0.000000    |    0.000000    |
+|    5    | 0.000000 | 0.000000 |    0.000000    |    0.000000    |
+|    6    | 0.000000 | 0.000000 |    0.000000    |    0.000000    |
+|    7    | 0.000000 | 1.000000 |    1.000000    |    1.000000    |
+|    8    | 0.000000 | 0.000000 |    0.000000    |    0.000000    |
+|    9    | 1.000000 | 1.000000 |    0.000000    |    0.000000    |
 
 ### Wnioski
 
 Zastosowanie warstwy ukrytej o wysokości 4 neuronów, odpowiadający czterem kombinacjom wartości {0,1} pozwala na idealne
 wyuczenie sieci funkcji xor.
+
+## [Link do repozytorium z kodem źródłowym](https://github.com/piotr233/neural-nets-cpp)
+https://github.com/piotr233/neural-nets-cpp
