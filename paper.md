@@ -84,7 +84,7 @@ Przykład wektora label, dla wartości 4: [0,0,0,0,1,0,0,0,0,0].
 
 Użyta do wyuczenia zbioru sieć ma kształt:
 
-| trait / layer | Input Layer | Hidden Layer 1 | Hidden Layer 2 | Output Layer |
+| trait / Layer | Input Linear | Hidden Linear 1 | Hidden Linear 2 | Output Linear |
 | :-----------: | :---------: | :------------: | :------------: | :----------: |
 |     Size      |     728     |       16       |       16       |      10      |
 | Cost Function |    Relu     |      Relu      |      Relu      |   Sigmoid    |

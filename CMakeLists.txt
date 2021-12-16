@@ -24,8 +24,8 @@ set(matrix_dir
 set(neural_net_dir
         neural_net/neural_net.h
         neural_net/neural_net.cpp
-        neural_net/layer.h
-        neural_net/layer.cpp
+        neural_net/linear_layer.h
+        neural_net/linear_layer.cpp
         )
 
 add_executable(neural_nets_cpp main.cpp

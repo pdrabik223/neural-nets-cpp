@@ -75,7 +75,7 @@ Nabla NeuralNet::PropagateBackwards(const matrix::Matrix<double> &error) {
 
   // output layer
   matrix::Matrix<double> delta = HadamardProduct(
-      error, Layer::ApplyDerivative(Nodes(-1), GetActivationFunction(-1)));
+      error, Linear::ApplyDerivative(Nodes(-1), GetActivationFunction(-1)));
   nabla_b[-1] = delta;
 
   nabla_w[-1] = Mul(delta, Transpose(Activations(-2)));
@@ -85,7 +85,7 @@ Nabla NeuralNet::PropagateBackwards(const matrix::Matrix<double> &error) {
   for (int l = 2; l <= LayersCount(); l++) {
 
     const matrix::Matrix<double> kSp =
-        Layer::ApplyDerivative(Nodes(-l), GetActivationFunction(-l));
+        Linear::ApplyDerivative(Nodes(-l), GetActivationFunction(-l));
 
     delta = HadamardProduct(Mul(matrix::Transpose(Weights(1 - l)), delta), kSp);
 

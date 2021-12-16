@@ -3,7 +3,7 @@
 //
 #include "matrix_vector_operations.h"
 #include <gtest/gtest.h>
-#include <layer.h>
+#include <linear_layer.h>
 #include <neural_net.h>
 
 TEST(Matrix, size_constructor_2x2) {
@@ -128,18 +128,18 @@ TEST(HadamardProduct, error_test) {
   EXPECT_ANY_THROW(test3 == HadamardProduct(test1, test2));
 }
 
-TEST(Sigmoid, 0) { EXPECT_TRUE(Layer::Sigmoid(0.0) == 0.5); }
+TEST(Sigmoid, 0) { EXPECT_TRUE(Linear::Sigmoid(0.0) == 0.5); }
 
-TEST(Sigmoid, 4) { EXPECT_TRUE(Layer::Sigmoid(4) >= 0.982); }
-TEST(Sigmoid, nimus_4) { EXPECT_TRUE(Layer::Sigmoid(-4) <= 0.018); }
+TEST(Sigmoid, 4) { EXPECT_TRUE(Linear::Sigmoid(4) >= 0.982); }
+TEST(Sigmoid, nimus_4) { EXPECT_TRUE(Linear::Sigmoid(-4) <= 0.018); }
 
 TEST(SigmoidDerivative, 0) {
-  EXPECT_TRUE(Layer::SigmoidDerivative(0.0) == 0.25);
+  EXPECT_TRUE(Linear::SigmoidDerivative(0.0) == 0.25);
 }
 
 TEST(SigmoidDerivative, 4) {
-  EXPECT_TRUE(Layer::SigmoidDerivative(4) <= 0.018);
+  EXPECT_TRUE(Linear::SigmoidDerivative(4) <= 0.018);
 }
 TEST(SigmoidDerivative, nimus_4) {
-  EXPECT_TRUE(Layer::SigmoidDerivative(-4) <= 0.018);
+  EXPECT_TRUE(Linear::SigmoidDerivative(-4) <= 0.018);
 }

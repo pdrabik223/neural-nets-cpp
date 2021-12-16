@@ -3,7 +3,7 @@
 //
 #include "matrix_vector_operations.h"
 #include <gtest/gtest.h>
-#include <layer.h>
+#include <linear_layer.h>
 #include <neural_net.h>
 TEST(Matrix, size_constructor_2x2) {
   matrix::Matrix<double> test(2, 2);

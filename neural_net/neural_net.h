@@ -5,7 +5,7 @@
 #ifndef NEURAL_NETS_CPP_NEURTAL_NET_NEURALNET_H_
 #define NEURAL_NETS_CPP_NEURTAL_NET_NEURALNET_H_
 
-#include "layer.h"
+#include "linear_layer.h"
 #include <fstream>
 #include <string>
 
@@ -74,7 +74,7 @@ public:
 
   ActivationFunction &GetActivationFunction(PyId id);
 
-  Layer &GetLayer(unsigned layer_id) { return network_layers_[layer_id]; }
+  Linear &GetLayer(unsigned layer_id) { return network_layers_[layer_id]; }
 
   size_t LayersCount() const { return network_layers_.size(); }
 
@@ -84,7 +84,7 @@ public:
 protected:
   size_t input_layer_size_;
   matrix::Matrix<double> input_values_;
-  std::vector<Layer> network_layers_;
+  std::vector<Linear> network_layers_;
 };
 static std::string ToString(ActivationFunction func) {
   switch (func) {
