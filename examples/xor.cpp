@@ -1,10 +1,9 @@
 //
 // Created by piotr on 19/11/2021.
 //
-
 #include "neural_net.h"
 #include <iostream>
-#include <matrix.h>
+#include "matrix.h"
 
 #include "TApplication.h"
 #include "TCanvas.h"
@@ -13,14 +12,20 @@
 #include "TH1.h"
 #include "TRootCanvas.h"
 
-double LinearFunction(double x, double y) { return 2 * x + y; }
+double Sum(matrix::Matrix<double> &target) {
+  double sum = 0.0;
+  for (auto i : target.RawData())
+    sum += i;
+  return sum;
+}
 
+double LinearFunction(int x, int y) { return x ^ y; }
 struct TestCase {
-  TestCase() : input(2, 1), label(2, 1) {
-    input.Get(0) = (double)rand() / (double)RAND_MAX;
-    input.Get(1) = (double)rand() / (double)RAND_MAX;
+  TestCase() : input(2, 1), label(1, 1) {
+    input.Get(0) = (rand() % 2);
+    input.Get(1) = (rand() % 2);
+
     label.Get(0) = LinearFunction(input.Get(0), input.Get(1));
-    label.Get(1) = LinearFunction(input.Get(1), input.Get(0));
   }
   /// 784 values from 0 to 1
   matrix::Matrix<double> input;
@@ -32,15 +37,17 @@ int main(int argc, char **argv) {
   TApplication app("app", &argc, argv);
   auto learning_error = TGraph();
 
-  NeuralNet neural_net(2, {2, 2}, 2);
+  NeuralNet neural_net(2, {4}, 1);
+
   neural_net.FillRandom();
 
   double learning_rate = 0.1;
+  const double kFinalLearningRate = 0.001;
+  const size_t kEpochs = 2;
+  const size_t kBatchSize = 1000;
+  const size_t kMiniBach = 2;
 
-  const size_t kEpochs = 5;
-  const size_t kBatchSize = 600;
-  const size_t kMiniBach = 10;
-
+  const double kLearningStep = (learning_rate - kFinalLearningRate) / kEpochs;
   for (int b = 0; b < kEpochs; b++) {
     for (int i = 0; i < kBatchSize; i++) {
 
@@ -56,29 +63,23 @@ int main(int argc, char **argv) {
         neural_net.Update(nabla, learning_rate);
 
         error_sum += Sum(error);
-        //        printf("epoch: %d\tbatch %d\terror %lf\n", b, i, error_sum);
       }
+
       error_sum /= (double)kMiniBach;
       learning_error.SetPoint(b * kBatchSize + i, b * kBatchSize + i,
                               abs(error_sum));
-
     }
   }
+
   printf("test no\t x value\ty value\tcorrect answer\t net estimation\n");
-  neural_net.SaveToFile("../2paramNN");
-  NeuralNet nn2("../2paramNN");
-  for (int i = 0; i < 100; i++) {
+  for (int i = 0; i < 10; i++) {
 
     TestCase test_case;
 
-    nn2.FeedForward(test_case.input);
-    printf("%d\t%lf\t%lf\t%lf %lf\t%lf %lf\n", i,
-           test_case.input.Get(0),
-           test_case.input.Get(1),
-           test_case.label.Get(0),
-           test_case.label.Get(1),
-           nn2.Activations(-1).Get(0),
-           nn2.Activations(-1).Get(1));
+    neural_net.FeedForward(test_case.input);
+    printf("%d\t%lf\t%lf\t%lf\t%lf\n", i, test_case.input.Get(0),
+           test_case.input.Get(1), test_case.label.Get(0),
+           neural_net.Activations(-1).Get(0));
   }
 
   auto c = new TCanvas("canvas", "NeuralNets", 10, 10, 800, 600);

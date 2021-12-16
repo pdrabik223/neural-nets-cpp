@@ -6,7 +6,7 @@
 #include <chrono>
 #include <fstream>
 #include <iostream>
-#include <matrix.h>
+#include "matrix.h"
 
 #include "TApplication.h"
 #include "TCanvas.h"

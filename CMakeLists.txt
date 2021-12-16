@@ -22,25 +22,27 @@ set(matrix_dir
         )
 
 set(neural_net_dir
+        neural_net/layer.h
+        neural_net/layer.cpp
         neural_net/neural_net.h
         neural_net/neural_net.cpp
         neural_net/linear_layer.h
         neural_net/linear_layer.cpp
         )
 
-add_executable(neural_nets_cpp main.cpp
+add_executable(neural_nets_cpp examples/simple_net.cpp
         ${matrix_dir}
         ${neural_net_dir})
 
-add_executable(xor_example xor.cpp
+add_executable(xor_example examples/xor.cpp
         ${matrix_dir}
         ${neural_net_dir})
 
-add_executable(mnist MNIST-try/mnist.cpp
+add_executable(mnist examples/MNIST-try/mnist.cpp
         ${matrix_dir}
         ${neural_net_dir})
 
-add_executable(mnist_test MNIST-try/mnist_test.cpp
+add_executable(mnist_test examples/MNIST-try/mnist_test.cpp
         ${matrix_dir}
         ${neural_net_dir})
 

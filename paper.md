@@ -146,7 +146,7 @@ Label oznacza poprawną wartość,
 net estimation: zinterpretowaną wartość zwróconą przez sieć,
 output: wartość zwróconą przez sieć,
 error: błąd konkretnego przykładu.
-![images.ong](MNIST-try/images.png)
+![images.ong](examples/MNIST-try/images.png)
 
 ### Wnioski
 Sieć skutecznie nauczyła się wykrywać cyfry na zdjęciach zbioru danych mnist.
