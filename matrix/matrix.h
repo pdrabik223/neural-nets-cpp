@@ -58,6 +58,12 @@ public:
 
   void Transpose();
 
+  T &operator[](PyId i) {
+    if (!IsVector())
+      throw "only vectors can be accessed via this handle";
+    return data_[ToInt(i.ConvertId(shape_.height), unsigned(0))];
+  }
+
   /// access specific value by reference
   /// \param i the 'height' part
   /// \param j the 'width' part

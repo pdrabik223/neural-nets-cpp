@@ -32,13 +32,6 @@ public:
   /// sets all weights and biases to random value ranging from 0 to 1
   void FillRandom();
 
-  /// sets all weights to specified value
-  /// \param value to witch weights will be set to
-  void FillWeights(double value);
-
-  /// sets all biases to specified value
-  /// \param value to witch biases will be set to
-  void FillBiases(double value);
 
   const matrix::Matrix<double> &GetNodes() const;
 
@@ -48,19 +41,16 @@ public:
               << ToString(biases_) << std::endl;
   };
 
-
   matrix::Matrix<double> &GetBiases();
 
   matrix::Matrix<double> &GetWeights();
   const matrix::Matrix<double> &GetActivatedNodes() const;
   ActivationFunction &GetActivationFunction();
-  void SetWeights(const matrix::Matrix<double> &weights);
-  void SetBiases(matrix::Matrix<double> &biases);
-
 
   static matrix::Matrix<double>
   ApplyDerivative(const matrix::Matrix<double> &vector_a,
                   ActivationFunction activation_function);
+
 protected:
   static double Relu(double val);
 
@@ -68,7 +58,6 @@ protected:
 
   static double SigmoidDerivative(double val);
   static double ReluDerivative(double val);
-
 
   static matrix::Matrix<double>
   ApplySigmoidDerivative(const matrix::Matrix<double> &vector_a);
@@ -82,7 +71,6 @@ protected:
 
 
   ActivationFunction activation_function_;
-
   matrix::Matrix<double> weights_;
   matrix::Matrix<double> biases_;
   matrix::Matrix<double> nodes_;

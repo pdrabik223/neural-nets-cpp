@@ -52,13 +52,6 @@ public:
 
   /// sets all weights and biases to random value ranging from 0 to 1
   void FillRandom();
-  /// sets all weights and biases to specified value
-  /// \param value witch all  weights will be set to
-  void FillWeights(double value);
-
-  /// sets all biases to specified value
-  /// \param value to witch biases will be set to
-  void FillBiases(double value);
 
   void Show();
 
@@ -66,90 +59,28 @@ public:
 
   Nabla PropagateBackwards(const matrix::Matrix<double> &error);
 
-  void Update(Nabla nabla, double learning_rate) {
-    // -------- apply changes -------
-
-    for (int l = 1; l <= network_layers_.size(); l++) {
-
-      Weights(-l).Sub(Mul(nabla.weights.Get(-l), learning_rate));
-
-      Biases(-l).Sub(Mul(nabla.biases.Get(-l), learning_rate));
-    }
-  }
+  void Update(Nabla nabla, double learning_rate);
 
   matrix::Matrix<double>
   CostFunction(const matrix::Matrix<double> &expected_output) const;
   matrix::Matrix<double>
   PowCostFunction(const matrix::Matrix<double> &expected_output) const;
 
-  const matrix::Matrix<double> &Activations(PyId id) const {
-    if (id.id == -network_layers_.size() - 1)
-      return input_values_;
-    return network_layers_[id.ConvertId(network_layers_.size())]
-        .GetActivatedNodes();
-  }
+  const matrix::Matrix<double> &Activations(PyId id) const;
 
-  const matrix::Matrix<double> &Nodes(PyId id) const {
+  const matrix::Matrix<double> &Nodes(PyId id) const;
+  matrix::Matrix<double> &Weights(PyId id);
+  matrix::Matrix<double> &Biases(PyId id);
 
-    if (id.id == -network_layers_.size() - 1)
-      return input_values_;
-    return network_layers_[id.ConvertId(network_layers_.size())].GetNodes();
-  }
-  matrix::Matrix<double> &Weights(PyId id) {
-
-    return network_layers_[id.ConvertId(network_layers_.size())].GetWeights();
-  }
-  matrix::Matrix<double> &Biases(PyId id) {
-
-    return network_layers_[id.ConvertId(network_layers_.size())].GetBiases();
-  }
-
-  ActivationFunction &GetActivationFunction(PyId id) {
-
-    return network_layers_[id.ConvertId(network_layers_.size())]
-        .GetActivationFunction();
-  }
+  ActivationFunction &GetActivationFunction(PyId id);
 
   Layer &GetLayer(unsigned layer_id) { return network_layers_[layer_id]; }
 
   size_t LayersCount() const { return network_layers_.size(); }
-  void SaveToFile(const std::string &file_path) {
-    std::fstream file;
-    file.open(file_path + ".txt", std::ios::out);
-    file << input_layer_size_ << "\n";
-    file << network_layers_.size() << "\n";
 
-    for (int i = 0; i < network_layers_.size(); i++) {
-      network_layers_[i].GetWeights().AppendToFile(file);
-      file << "\n";
-      network_layers_[i].GetBiases().AppendToFile(file);
-      file << "\n";
-      file << (int)network_layers_[i].GetActivationFunction();
-      file << "\n";
-    }
-    file.close();
-  }
-  void LoadFromFile(const std::string &file_path) {
-    std::fstream file;
-    file.open(file_path + ".txt", std::ios::in);
-    file >> input_layer_size_;
-    input_values_ = matrix::Matrix<double>(input_layer_size_,1);
-    int network_layers_count;
-    file >> network_layers_count;
-    for (int i = 0; i < network_layers_count; i++) {
-      matrix::Matrix<double> weights;
-      matrix::Matrix<double> biases;
-      int activation_function;
+  void SaveToFile(const std::string &file_path);
+  void LoadFromFile(const std::string &file_path);
 
-      weights.ReadFromFile(file);
-      biases.ReadFromFile(file);
-      file >> activation_function;
-      network_layers_.emplace_back(weights, biases,
-                                   ActivationFunction(activation_function));
-    }
-  }
-
-private:
 protected:
   size_t input_layer_size_;
   matrix::Matrix<double> input_values_;
@@ -161,6 +92,9 @@ static std::string ToString(ActivationFunction func) {
     return "Relu";
   case ActivationFunction::SIGMOID:
     return "Sigmoid";
+  case ActivationFunction::SOFTMAX:
+    return "Softmax";
+    break;
   }
 }
 #endif // NEURAL_NETS_CPP_NEURTAL_NET_NEURALNET_H_

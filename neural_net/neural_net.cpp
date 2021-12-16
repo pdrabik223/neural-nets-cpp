@@ -7,7 +7,7 @@
 NeuralNet::NeuralNet(size_t input_layer_size,
                      const std::vector<size_t> &hidden_layer_sizes,
                      size_t output_layer_size)
-    : input_layer_size_(input_layer_size){
+    : input_layer_size_(input_layer_size) {
 
   network_layers_.emplace_back(input_layer_size, hidden_layer_sizes[0],
                                ActivationFunction::RELU);
@@ -46,7 +46,7 @@ void NeuralNet::Show() {
 
   std::cout << "input layer size: " << input_layer_size_ << std::endl;
 
-  for (int i = 0; i < network_layers_.size() - 1; i++) {
+  for (int i = 0; i < LayersCount() - 1; i++) {
     network_layers_[i].Show();
     std::cout << std::endl;
   }
@@ -55,16 +55,7 @@ void NeuralNet::Show() {
   network_layers_.back().Show();
   std::cout << std::endl;
 }
-void NeuralNet::FillBiases(double value) {
-  for (auto &hidden_layer : network_layers_) {
-    hidden_layer.FillBiases(value);
-  }
-}
-void NeuralNet::FillWeights(double value) {
-  for (auto &hidden_layer : network_layers_) {
-    hidden_layer.FillWeights(value);
-  }
-}
+
 void NeuralNet::FillRandom() {
   for (auto &hidden_layer : network_layers_) {
     hidden_layer.FillRandom();
@@ -77,30 +68,30 @@ void NeuralNet::FillRandom() {
 //                                      -- Phil Karlton
 Nabla NeuralNet::PropagateBackwards(const matrix::Matrix<double> &error) {
 
-  matrix::Matrix<matrix::Matrix<double>> nabla_b(network_layers_.size(), 1);
-  matrix::Matrix<matrix::Matrix<double>> nabla_w(network_layers_.size(), 1);
+  matrix::Matrix<matrix::Matrix<double>> nabla_b(LayersCount(), 1);
+  matrix::Matrix<matrix::Matrix<double>> nabla_w(LayersCount(), 1);
 
   //  matrix::Matrix<double> expected_matrix(matrix::ConvertToMatrix(error));
 
   // output layer
   matrix::Matrix<double> delta = HadamardProduct(
       error, Layer::ApplyDerivative(Nodes(-1), GetActivationFunction(-1)));
-  nabla_b.Get(-1) = delta;
+  nabla_b[-1] = delta;
 
-  nabla_w.Get(-1) = Mul(delta, Transpose(Activations(-2)));
+  nabla_w[-1] = Mul(delta, Transpose(Activations(-2)));
 
   // hidden layers
 
-  for (int l = 2; l <= network_layers_.size(); l++) {
+  for (int l = 2; l <= LayersCount(); l++) {
 
     const matrix::Matrix<double> kSp =
         Layer::ApplyDerivative(Nodes(-l), GetActivationFunction(-l));
 
     delta = HadamardProduct(Mul(matrix::Transpose(Weights(1 - l)), delta), kSp);
 
-    nabla_b.Get(-l) = delta;
+    nabla_b[-l] = delta;
 
-    nabla_w.Get(-l) = Mul(delta, matrix::Transpose(Activations(-1 - l)));
+    nabla_w[-l] = Mul(delta, matrix::Transpose(Activations(-1 - l)));
   }
 
   return {nabla_w, nabla_b};
@@ -122,13 +113,81 @@ matrix::Matrix<double> NeuralNet::PowCostFunction(
   error = Sub(Activations(-1), expected_output);
   matrix::Matrix<double> sign(error.GetHeight(), 1);
   for (int i = 0; i < error.GetHeight(); ++i) {
-    if (error.Get(i) < 0)
-      sign.Get(i) = -1;
+    if (error[i] < 0)
+      sign[i] = -1;
     else
-      sign.Get(i) = 1;
+      sign[i] = 1;
   }
   error = matrix::HadamardProduct(error, error);
   error = matrix::HadamardProduct(error, sign);
 
   return error;
+}
+void NeuralNet::Update(Nabla nabla, double learning_rate) {
+  // -------- apply changes -------
+
+  for (int l = 1; l <= LayersCount(); l++) {
+
+    Weights(-l).Sub(Mul(nabla.weights.Get(-l), learning_rate));
+
+    Biases(-l).Sub(Mul(nabla.biases.Get(-l), learning_rate));
+  }
+}
+const matrix::Matrix<double> &NeuralNet::Activations(PyId id) const {
+  if (id.id == -LayersCount() - 1)
+    return input_values_;
+  return network_layers_[id.ConvertId(LayersCount())].GetActivatedNodes();
+}
+const matrix::Matrix<double> &NeuralNet::Nodes(PyId id) const {
+
+  if (id.id == -LayersCount() - 1)
+    return input_values_;
+  return network_layers_[id.ConvertId(LayersCount())].GetNodes();
+}
+matrix::Matrix<double> &NeuralNet::Weights(PyId id) {
+
+  return network_layers_[id.ConvertId(LayersCount())].GetWeights();
+}
+matrix::Matrix<double> &NeuralNet::Biases(PyId id) {
+
+  return network_layers_[id.ConvertId(LayersCount())].GetBiases();
+}
+ActivationFunction &NeuralNet::GetActivationFunction(PyId id) {
+
+  return network_layers_[id.ConvertId(LayersCount())].GetActivationFunction();
+}
+void NeuralNet::SaveToFile(const std::string &file_path) {
+  std::fstream file;
+  file.open(file_path + ".txt", std::ios::out);
+  file << input_layer_size_ << "\n";
+  file << LayersCount() << "\n";
+
+  for (int i = 0; i < LayersCount(); i++) {
+    network_layers_[i].GetWeights().AppendToFile(file);
+    file << "\n";
+    network_layers_[i].GetBiases().AppendToFile(file);
+    file << "\n";
+    file << (int)network_layers_[i].GetActivationFunction();
+    file << "\n";
+  }
+  file.close();
+}
+void NeuralNet::LoadFromFile(const std::string &file_path) {
+  std::fstream file;
+  file.open(file_path + ".txt", std::ios::in);
+  file >> input_layer_size_;
+  input_values_ = matrix::Matrix<double>(input_layer_size_, 1);
+  int network_layers_count;
+  file >> network_layers_count;
+  for (int i = 0; i < network_layers_count; i++) {
+    matrix::Matrix<double> weights;
+    matrix::Matrix<double> biases;
+    int activation_function;
+
+    weights.ReadFromFile(file);
+    biases.ReadFromFile(file);
+    file >> activation_function;
+    network_layers_.emplace_back(weights, biases,
+                                 ActivationFunction(activation_function));
+  }
 }
