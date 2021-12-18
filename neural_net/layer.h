@@ -5,7 +5,7 @@
 #ifndef NEURAL_NETS_CPP_NEURAL_NET_LAYER_H_
 #define NEURAL_NETS_CPP_NEURAL_NET_LAYER_H_
 
-#include "../matrix/matrix_vector_operations.h"
+#include "matrix.h"
 #include <iostream>
 
 class Layer {

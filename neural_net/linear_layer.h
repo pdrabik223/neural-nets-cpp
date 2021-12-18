@@ -4,13 +4,13 @@
 
 #ifndef NEURAL_NETS_CPP_NEURAL_NET_LINEAR_LAYER_H_
 #define NEURAL_NETS_CPP_NEURAL_NET_LINEAR_LAYER_H_
-#include "../matrix/matrix_vector_operations.h"
 #include "layer.h"
+#include "matrix.h"
 #include <iostream>
 
 enum class ActivationFunction { RELU, SIGMOID, SOFTMAX };
 
-class Linear : public Layer {
+class Linear {
 public:
   Linear(size_t previous_layer_height, size_t layer_height,
          ActivationFunction activation_function);

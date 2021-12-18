@@ -250,15 +250,13 @@ static Matrix<T> Add(const Matrix<T> &matrix_a, const Matrix<T> &matrix_b) {
 template <class T>
 static Matrix<T> Sub(const Matrix<T> &matrix_a, const Matrix<T> &matrix_b) {
 
-  if (matrix_a.GetWidth() != matrix_b.GetWidth())
-    throw "incorrect matrix shape";
-
-  if (matrix_a.GetHeight() != matrix_b.GetHeight())
+  if (matrix_a.GetWidth() != matrix_b.GetWidth() ||
+      matrix_a.GetHeight() != matrix_b.GetHeight())
     throw "incorrect matrix shape";
 
   Matrix<T> addition(matrix_a);
-  for (int i = 0; i < matrix_a.GetHeight(); i++)
-    for (int j = 0; j < matrix_a.GetWidth(); j++)
+  for (int i = 0; i < addition.GetHeight(); i++)
+    for (int j = 0; j < addition.GetWidth(); j++)
       addition.Get(i, j) -= matrix_b.Get(i, j);
   return addition;
 }

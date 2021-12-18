@@ -15,11 +15,8 @@ enable_testing()
 
 
 set(matrix_dir
-
         matrix/matrix.h
-        matrix/matrix.cpp
-        matrix/matrix_vector_operations.h
-        )
+        matrix/matrix.cpp)
 
 set(neural_net_dir
         neural_net/layer.h
